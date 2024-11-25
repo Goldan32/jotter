@@ -1,4 +1,3 @@
-mod cli;
 mod command;
 mod time;
 

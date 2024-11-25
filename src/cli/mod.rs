@@ -1,5 +1,6 @@
 use crate::time::Word;
 use clap::{Arg, ArgAction, Command, Subcommand};
+use std::fmt::Debug;
 
 #[derive(Debug)]
 struct Add {
@@ -14,21 +15,15 @@ struct Ls {
 }
 
 // TEST: Example function taking Add struct
-fn test_add(args: Add) -> () {
+fn test_subcommand<T>(args: T)
+where
+    T: Debug,
+{
     println!("{:?}", args);
-}
-
-fn test_ls(args: Ls) -> () {
-    println!("{:?}", args);
-}
-
-enum AppCommand {
-    TestAdd(Add),
-    TestLs(Ls),
 }
 
 #[allow(dead_code)]
-pub fn cli_app() -> AppCommand {
+pub fn cli_app() {
     let matches = Command::new("budget-jira")
         .about("A CLI task handler written in Rust")
         .subcommand_required(true)
@@ -69,7 +64,7 @@ pub fn cli_app() -> AppCommand {
         .get_matches();
 
     match matches.subcommand() {
-        Some(("add", sub_m)) => AppCommand::TestAdd(Add {
+        Some(("add", sub_m)) => test_subcommand(Add {
             name: sub_m
                 .get_one::<String>("name")
                 .expect("Missing task name")
@@ -83,7 +78,7 @@ pub fn cli_app() -> AppCommand {
                 .unwrap_or(&String::from("Indefinite"))
                 .clone(),
         }),
-        Some(("ls", sub_m)) => AppCommand::TestLs(Ls {
+        Some(("ls", sub_m)) => test_subcommand(Ls {
             status: sub_m
                 .get_one::<String>("status")
                 .unwrap_or(&String::from("All"))
@@ -92,5 +87,3 @@ pub fn cli_app() -> AppCommand {
         _ => panic!("Pls no"),
     }
 }
-
-
