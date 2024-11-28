@@ -1,6 +1,3 @@
 mod command;
-mod time;
-
-pub fn greet() {
-    println!("Hello lib!");
-}
+mod executor;
+mod utils;

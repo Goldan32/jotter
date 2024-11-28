@@ -1,18 +1,11 @@
-use crate::time::Word;
+mod add;
+mod ls;
+mod utils;
+
+use add::Add;
 use clap::{Arg, ArgAction, Command, Subcommand};
+use ls::Ls;
 use std::fmt::Debug;
-
-#[derive(Debug)]
-struct Add {
-    name: String,
-    description: String,
-    date: String,
-}
-
-#[derive(Debug)]
-struct Ls {
-    status: String,
-}
 
 // TEST: Example function taking Add struct
 fn test_subcommand<T>(args: T)

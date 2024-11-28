@@ -1,11 +1,11 @@
-use datetime::LocalDate;
+use crate::utils::{DueDate, Status};
 
-pub trait Add {
-    fn add(name: &str, time: LocalDate, description: &str) -> u32;
+pub struct Add {
+    pub name: String,
+    pub date: DueDate,
+    pub description: String,
 }
 
-// pub trait Modify {}
-// pub trait Delete {}
-// pub trait Progress {}
-// pub trait Show {}
-// pub trait Open {}
+pub struct Ls {
+    pub status: Status,
+}

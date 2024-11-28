@@ -1,8 +1,7 @@
 mod cli;
-mod time;
+mod command;
+mod utils;
 
 fn main() {
-    bjl::greet();
-    println!("Hello, world!");
     cli::cli_app();
 }
