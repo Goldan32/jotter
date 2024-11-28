@@ -1,5 +1,4 @@
-use crate::cli::utils::CliError;
-use crate::command::Add as AddCommand;
+use crate::{cli::utils::CliError, command::Add as AddCommand};
 use std::convert::TryInto;
 
 #[derive(Debug)]
@@ -15,7 +14,7 @@ impl TryInto<AddCommand> for Add {
         Ok(AddCommand {
             name: self.name,
             description: self.description,
-            date: self.date,
+            date: self.date.parse().unwrap(),
         })
     }
 }

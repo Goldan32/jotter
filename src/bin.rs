@@ -3,5 +3,6 @@ mod command;
 mod utils;
 
 fn main() {
-    cli::cli_app();
+    let c = cli::get_command();
+    println!("{:?}", c);
 }

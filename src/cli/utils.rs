@@ -1,3 +1,2 @@
-pub enum CliError {
-    ConvertError,
-}
+#[derive(Debug)]
+pub struct CliError;

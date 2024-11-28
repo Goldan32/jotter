@@ -3,6 +3,7 @@ use std::str;
 use std::str::FromStr;
 use strum_macros::EnumString;
 
+#[derive(Debug)]
 pub struct ConvertError;
 
 // TODO: Change Other to Localdate
