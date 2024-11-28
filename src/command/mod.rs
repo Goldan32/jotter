@@ -7,7 +7,7 @@ pub enum Command {
     Ls(Ls),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Add {
     pub name: String,
     pub date: DueDate,

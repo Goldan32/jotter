@@ -7,7 +7,7 @@ use strum_macros::EnumString;
 pub struct ConvertError;
 
 // TODO: Change Other to Localdate
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum DueDate {
     Today,
     Tomorrow,
