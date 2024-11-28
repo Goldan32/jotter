@@ -15,7 +15,7 @@ pub enum DueDate {
     Other(String),
 }
 
-#[derive(EnumString, Debug)]
+#[derive(EnumString, Debug, PartialEq)]
 pub enum Status {
     #[strum(serialize = "done", ascii_case_insensitive)]
     Done,

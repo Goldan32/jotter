@@ -9,7 +9,7 @@ name = "bjl"
 path = "src/lib.rs"
 
 [[bin]]
-name = "budget-jira-bin"
+name = "budget_jira"
 path = "src/bin.rs"
 
 [dependencies]

@@ -1,6 +1,6 @@
 use crate::utils::{DueDate, Status};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 #[allow(dead_code)]
 pub enum Command {
     Add(Add),
@@ -14,7 +14,7 @@ pub struct Add {
     pub description: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Ls {
     pub status: Status,
 }

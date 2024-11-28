@@ -6,9 +6,15 @@ use crate::command::{Add as AddCommand, Command as AppCommand, Ls as LsCommand};
 use add::Add;
 use clap::{Arg, Command as ClapC};
 use ls::Ls;
+use std::ffi::OsString;
+use std::iter::IntoIterator;
 
 #[allow(dead_code)]
-pub fn get_command() -> AppCommand {
+pub fn get_command<I, T>(args: I) -> AppCommand
+where
+    I: IntoIterator<Item = T>,
+    T: Into<OsString> + Clone,
+{
     let matches = ClapC::new("budget-jira")
         .about("A CLI task handler written in Rust")
         .subcommand_required(true)
@@ -46,7 +52,7 @@ pub fn get_command() -> AppCommand {
                     .index(1),
             ),
         )
-        .get_matches();
+        .get_matches_from(args);
 
     match matches.subcommand() {
         Some(("add", sub_m)) => AppCommand::Add(

@@ -20,7 +20,9 @@ impl TryInto<AddCommand> for Add {
 }
 
 mod tests {
+    #[allow(unused)]
     use super::*;
+    #[allow(unused)]
     use crate::utils::DueDate;
 
     #[test]
