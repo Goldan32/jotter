@@ -1,12 +1,14 @@
-//use datetime::LocalDate;
-use std::str;
-use std::str::FromStr;
+use chrono::{
+    naive::{Days, NaiveDate},
+    offset::Local,
+    Datelike,
+};
+use std::{convert::TryInto, str::FromStr};
 use strum_macros::EnumString;
 
 #[derive(Debug)]
 pub struct ConvertError;
 
-// TODO: Change Other to Localdate
 #[derive(Debug, PartialEq)]
 pub enum DueDate {
     Today,
@@ -33,6 +35,24 @@ impl FromStr for DueDate {
             "tomorrow" => Ok(Self::Tomorrow),
             "endofweek" | "eow" => Ok(Self::EndOfWeek),
             s => Ok(Self::Other(s.to_string())),
+        }
+    }
+}
+
+impl TryInto<NaiveDate> for DueDate {
+    type Error = ConvertError;
+    fn try_into(self) -> Result<NaiveDate, Self::Error> {
+        let today = Local::now().date_naive();
+        match self {
+            Self::Today => Ok(today),
+            Self::Tomorrow => Ok(today.checked_add_days(Days::new(1)).unwrap()),
+            Self::EndOfWeek => {
+                let day = today.weekday().num_days_from_monday();
+                Ok(today
+                    .checked_add_days(Days::new(day as u64 + 4u64))
+                    .unwrap())
+            }
+            Self::Other(s) => panic!("Can't make date from {}, yet!", s),
         }
     }
 }
