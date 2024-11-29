@@ -1,4 +1,8 @@
-use crate::utils::{DueDate, Status};
+use crate::{
+    task::Task,
+    utils::{ConvertError, DueDate, Status},
+};
+use std::convert::TryInto;
 
 #[derive(Debug, PartialEq)]
 #[allow(dead_code)]
