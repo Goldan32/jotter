@@ -1,5 +1,6 @@
 mod cli;
 mod command;
+mod task;
 mod utils;
 
 fn main() {

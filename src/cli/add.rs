@@ -1,4 +1,4 @@
-use crate::{cli::utils::CliError, command::Add as AddCommand};
+use crate::{cli::utils::CliError, command::Put as PutCommand};
 use std::convert::TryInto;
 
 #[derive(Debug, PartialEq)]
@@ -8,10 +8,10 @@ pub struct Add {
     pub date: String,
 }
 
-impl TryInto<AddCommand> for Add {
+impl TryInto<PutCommand> for Add {
     type Error = CliError;
-    fn try_into(self) -> Result<AddCommand, Self::Error> {
-        Ok(AddCommand {
+    fn try_into(self) -> Result<PutCommand, Self::Error> {
+        Ok(PutCommand {
             name: self.name,
             description: self.description,
             date: self.date.parse().unwrap(),
@@ -33,11 +33,11 @@ mod tests {
             date: "Tomorrow".to_string(),
         };
 
-        let uut: AddCommand = data.try_into().unwrap();
+        let uut: PutCommand = data.try_into().unwrap();
 
         assert_eq!(
             uut,
-            AddCommand {
+            PutCommand {
                 name: "UUT Name".to_string(),
                 description: "UUT Description".to_string(),
                 date: DueDate::Tomorrow,

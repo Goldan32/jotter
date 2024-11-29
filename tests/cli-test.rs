@@ -16,7 +16,7 @@ fn test_get_cli_add_correct() {
 
     assert_eq!(
         uut,
-        bjl::command::Command::Add(bjl::command::Add {
+        bjl::command::Command::Put(bjl::command::Put {
             name: "Example name".to_string(),
             date: bjl::utils::DueDate::Tomorrow,
             description: "Example description".to_string(),

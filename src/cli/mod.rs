@@ -2,7 +2,7 @@ mod add;
 mod ls;
 mod utils;
 
-use crate::command::{Add as AddCommand, Command as AppCommand, Ls as LsCommand};
+use crate::command::{Command as AppCommand, Get as GetCommand, Put as PutCommand};
 use add::Add;
 use clap::{Arg, Command as ClapC};
 use ls::Ls;
@@ -55,8 +55,8 @@ where
         .get_matches_from(args);
 
     match matches.subcommand() {
-        Some(("add", sub_m)) => AppCommand::Add(
-            TryInto::<AddCommand>::try_into(Add {
+        Some(("add", sub_m)) => AppCommand::Put(
+            TryInto::<PutCommand>::try_into(Add {
                 name: sub_m
                     .get_one::<String>("name")
                     .expect("Missing task name")
@@ -72,8 +72,8 @@ where
             })
             .unwrap(),
         ),
-        Some(("ls", sub_m)) => AppCommand::Ls(
-            TryInto::<LsCommand>::try_into(Ls {
+        Some(("ls", sub_m)) => AppCommand::Get(
+            TryInto::<GetCommand>::try_into(Ls {
                 status: sub_m
                     .get_one::<String>("status")
                     .unwrap_or(&String::from("All"))
