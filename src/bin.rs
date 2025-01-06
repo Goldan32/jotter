@@ -3,5 +3,6 @@ mod mw;
 mod utils;
 
 fn main() {
-    println!("Hello World!");
+    let c = frontend::cli::get_command(std::env::args_os());
+    println!("{:?}", c);
 }

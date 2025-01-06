@@ -55,32 +55,28 @@ where
         .get_matches_from(args);
 
     match matches.subcommand() {
-        Some(("add", sub_m)) => AppCommand::Put(
-            TryInto::<PutCommand>::try_into(Add {
-                name: sub_m
-                    .get_one::<String>("name")
-                    .expect("Missing task name")
-                    .clone(),
-                description: sub_m
-                    .get_one::<String>("description")
-                    .unwrap_or(&String::from("No description"))
-                    .to_string(),
-                date: sub_m
-                    .get_one::<String>("time")
-                    .unwrap_or(&String::from("Indefinite"))
-                    .clone(),
-            })
-            .unwrap(),
-        ),
-        Some(("ls", sub_m)) => AppCommand::Get(
-            TryInto::<GetCommand>::try_into(Ls {
-                status: sub_m
-                    .get_one::<String>("status")
-                    .unwrap_or(&String::from("All"))
-                    .clone(),
-            })
-            .unwrap(),
-        ),
+        Some(("add", sub_m)) => TryInto::<InputCommand>::try_into(Add {
+            name: sub_m
+                .get_one::<String>("name")
+                .expect("Missing task name")
+                .clone(),
+            description: sub_m
+                .get_one::<String>("description")
+                .unwrap_or(&String::from("No description"))
+                .to_string(),
+            date: sub_m
+                .get_one::<String>("time")
+                .unwrap_or(&String::from("Indefinite"))
+                .clone(),
+        })
+        .unwrap(),
+        Some(("ls", sub_m)) => TryInto::<InputCommand>::try_into(Ls {
+            status: sub_m
+                .get_one::<String>("status")
+                .unwrap_or(&String::from("All"))
+                .clone(),
+        })
+        .unwrap(),
         _ => panic!("Pls no"),
     }
 }
