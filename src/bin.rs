@@ -2,7 +2,8 @@ mod frontend;
 mod mw;
 mod utils;
 
+use crate::mw::ui::FrontEndInput;
+
 fn main() {
-    let c = frontend::cli::get_command(std::env::args_os());
-    println!("{:?}", c);
+    println!("{:?}", frontend::cli::Cli::execute());
 }
