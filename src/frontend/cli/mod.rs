@@ -11,14 +11,19 @@ use std::iter::IntoIterator;
 
 pub struct Cli;
 
+impl Cli {
+    pub fn new() -> Self {
+        Cli
+    }
+}
+
 impl FrontEndInput for Cli {
-    fn execute() -> InputCommand {
+    fn execute(&self) -> InputCommand {
         get_command(std::env::args_os())
     }
 }
 
-#[allow(dead_code)]
-fn get_command<I, T>(args: I) -> InputCommand
+pub fn get_command<I, T>(args: I) -> InputCommand
 where
     I: IntoIterator<Item = T>,
     T: Into<OsString> + Clone,

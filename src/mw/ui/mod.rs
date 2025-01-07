@@ -8,11 +8,12 @@ pub enum InputCommand {
     Ls(Status),
 }
 
+#[allow(unused)]
 pub trait FrontEndCapabilities {
     fn add(name: String, description: String, duedate: String) -> Task;
     fn ls(status: String) -> Status;
 }
 
 pub trait FrontEndInput {
-    fn execute() -> InputCommand;
+    fn execute(&self) -> InputCommand;
 }

@@ -1,4 +1,4 @@
-use crate::{frontend::cli::utils::CliError, mw::ui::InputCommand, utils::Status};
+use crate::{frontend::cli::utils::CliError, mw::ui::InputCommand};
 use std::convert::TryInto;
 
 #[derive(Debug)]
