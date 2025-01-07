@@ -2,14 +2,27 @@ mod add;
 mod ls;
 mod utils;
 
-use crate::mw::ui::InputCommand;
+use crate::mw::ui::{FrontEndInput, InputCommand};
 use add::Add;
 use clap::{Arg, Command as ClapC};
 use ls::Ls;
 use std::ffi::OsString;
 use std::iter::IntoIterator;
 
-#[allow(dead_code)]
+pub struct Cli;
+
+impl Cli {
+    pub fn new() -> Self {
+        Cli
+    }
+}
+
+impl FrontEndInput for Cli {
+    fn execute(&self) -> InputCommand {
+        get_command(std::env::args_os())
+    }
+}
+
 pub fn get_command<I, T>(args: I) -> InputCommand
 where
     I: IntoIterator<Item = T>,
