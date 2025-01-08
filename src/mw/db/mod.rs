@@ -6,6 +6,6 @@ pub enum DatabaseError {
 }
 
 pub trait DatabaseOps {
-    fn insert_or_modify(t: Task) -> Result<Task, DatabaseError>;
-    fn list(status: Status) -> Result<Vec<Task>, DatabaseError>;
+    fn insert_or_modify(&self, t: Task) -> Result<Task, DatabaseError>;
+    fn list(&self, status: Status) -> Result<Vec<Task>, DatabaseError>;
 }

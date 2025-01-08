@@ -3,7 +3,10 @@ use chrono::{
     offset::Local,
     Datelike,
 };
-use std::{convert::TryInto, str::FromStr};
+use std::{
+    convert::{TryFrom, TryInto},
+    str::FromStr,
+};
 use strum_macros::EnumString;
 
 #[derive(Debug)]
