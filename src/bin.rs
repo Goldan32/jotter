@@ -1,3 +1,4 @@
+mod database;
 mod frontend;
 mod mw;
 mod utils;
