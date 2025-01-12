@@ -20,9 +20,22 @@ pub struct Sqlite {
 
 impl Sqlite {
     pub fn open(path: &str) -> Result<Self, DatabaseError> {
-        Ok(Self {
+        let mut tmp = Self {
             conn: Connection::open(path).unwrap(),
-        })
+        };
+        match tmp.conn.execute(
+            "CREATE TABLE IF NOT EXISTS tasks (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            title TEXT NOT NULL,
+                            description TEXT,
+                            status TEXT,
+                            due DATE
+                          );",
+            (),
+        ) {
+            Ok(_) => Ok(tmp),
+            Err(_) => Err(DatabaseError::CreateConnectionError),
+        }
     }
 }
 
