@@ -12,6 +12,7 @@ use crate::{
     utils::Status,
 };
 
+use chrono::NaiveDate;
 use rusqlite::{params, Connection, Result as rResult};
 
 pub struct Sqlite {
@@ -28,7 +29,7 @@ impl Sqlite {
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             title TEXT NOT NULL,
                             description TEXT,
-                            status TEXT,
+                            status INTEGER,
                             due DATE
                           );",
             (),
@@ -45,11 +46,12 @@ impl DatabaseOps for Sqlite {
             // Modify
         } else {
             // Create
+            let tmp_due: NaiveDate = t.due.clone().try_into().unwrap();
             self.conn
                 .execute(
                     "INSERT INTO tasks (title, description, status, due)
                  VALUES (?1, ?2, ?3, ?4)",
-                    (&t.title, &t.description, &t.status, &t.due),
+                    (&t.title, &t.description, &t.status, &tmp_due),
                 )
                 .unwrap();
         }

@@ -1,16 +1,19 @@
 use crate::utils::Status;
 
 use rusqlite::types::Value;
-use rusqlite::{types::FromSql, types::FromSqlError, types::ToSql, types::ValueRef, Result};
+use rusqlite::{
+    types::FromSql, types::FromSqlError, types::ToSql, types::ToSqlOutput, types::ValueRef,
+    Error as rError, Result,
+};
 
 // Implement ToSql
 impl ToSql for Status {
-    fn to_sql(&self) -> Result<Value> {
-        Ok(Value::Integer(match self {
+    fn to_sql(&self) -> Result<ToSqlOutput<'_>, rError> {
+        Ok(ToSqlOutput::Owned(Value::Integer(match self {
             Status::Done => 0,
             Status::Todo => 1,
             Status::Archived => 2,
-        }))
+        })))
     }
 }
 

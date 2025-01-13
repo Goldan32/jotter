@@ -12,7 +12,7 @@ use strum_macros::EnumString;
 #[derive(Debug)]
 pub struct ConvertError;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum DueDate {
     Today,
     Tomorrow,
