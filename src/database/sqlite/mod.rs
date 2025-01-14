@@ -1,7 +1,6 @@
 //TODO: Remove this allow
 #![allow(unused)]
 
-mod insert_or_modify;
 mod utils;
 
 use crate::{
@@ -41,6 +40,10 @@ impl Sqlite {
 }
 
 impl DatabaseOps for Sqlite {
+    fn open(path: &str) -> Self {
+        Sqlite::open(path).unwrap()
+    }
+
     fn insert_or_modify(&self, t: Task) -> Result<Task, DatabaseError> {
         if let Some(id) = t.id {
             // Modify

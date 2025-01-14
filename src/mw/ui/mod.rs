@@ -14,5 +14,6 @@ pub trait FrontEndCapabilities {
 }
 
 pub trait FrontEndInput {
+    fn new() -> Self;
     fn execute(&self) -> InputCommand;
 }

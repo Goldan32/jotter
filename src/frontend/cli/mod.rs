@@ -18,6 +18,9 @@ impl Cli {
 }
 
 impl FrontEndInput for Cli {
+    fn new() -> Self {
+        Cli::new()
+    }
     fn execute(&self) -> InputCommand {
         get_command(std::env::args_os())
     }
