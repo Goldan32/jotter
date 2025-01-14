@@ -1,5 +1,4 @@
-use crate::mw::task::Task;
-use crate::utils::Status;
+use crate::{mw::task::Task, utils::Status};
 
 #[derive(Debug, PartialEq)]
 #[allow(dead_code)]
@@ -15,5 +14,6 @@ pub trait FrontEndCapabilities {
 }
 
 pub trait FrontEndInput {
+    fn new() -> Self;
     fn execute(&self) -> InputCommand;
 }
