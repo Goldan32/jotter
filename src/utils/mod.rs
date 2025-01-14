@@ -7,7 +7,7 @@ use std::{
     convert::{TryFrom, TryInto},
     str::FromStr,
 };
-use strum_macros::EnumString;
+use strum_macros::{Display, EnumString};
 
 #[derive(Debug)]
 pub struct ConvertError;
@@ -20,13 +20,11 @@ pub enum DueDate {
     Other(String),
 }
 
-#[derive(EnumString, Debug, PartialEq)]
+#[derive(EnumString, Debug, PartialEq, Clone)]
+#[strum(serialize_all = "lowercase")]
 pub enum Status {
-    #[strum(serialize = "done", ascii_case_insensitive)]
     Done,
-    #[strum(serialize = "todo", ascii_case_insensitive)]
     Todo,
-    #[strum(serialize = "archived", ascii_case_insensitive)]
     Archived,
 }
 
