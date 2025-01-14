@@ -18,7 +18,7 @@ impl TryInto<InputCommand> for Add {
         Ok(InputCommand::Add(Task {
             title: self.name,
             description: Some(self.description),
-            due: self.date.parse().unwrap(),
+            due: self.date.parse().expect("Error parsing date from cli"),
             id: None,
             status: Status::Todo,
         }))
@@ -39,7 +39,9 @@ mod tests {
             date: "Tomorrow".to_string(),
         };
 
-        let uut: InputCommand = data.try_into().unwrap();
+        let uut: InputCommand = data
+            .try_into()
+            .expect("Error making InputCommand from Cli::Add");
 
         assert_eq!(
             uut,

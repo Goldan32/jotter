@@ -44,6 +44,7 @@ impl DatabaseOps for Sqlite {
     }
 
     fn insert_or_modify(&self, t: Task) -> Result<Task, DatabaseError> {
+        #[allow(unused)]
         if let Some(id) = t.id {
             // Modify
         } else {
@@ -64,6 +65,7 @@ impl DatabaseOps for Sqlite {
         Ok(t)
     }
 
+    #[allow(unused)]
     fn list(&self, status: Status) -> Result<Vec<Task>, DatabaseError> {
         Ok(Vec::new())
     }

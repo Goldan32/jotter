@@ -1,7 +1,6 @@
 use crate::{mw::task::Task, utils::Status};
 
 #[derive(Debug, PartialEq)]
-#[allow(dead_code)]
 pub enum InputCommand {
     Add(Task),
     Ls(Status),

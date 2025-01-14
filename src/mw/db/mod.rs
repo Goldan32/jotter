@@ -3,6 +3,7 @@ use crate::{mw::task::Task, utils::Status};
 #[derive(Debug, PartialEq)]
 pub enum DatabaseError {
     CreateTableError,
+    #[allow(unused)]
     UnknownError,
 }
 

@@ -18,6 +18,6 @@ impl ToSql for Status {
 impl FromSql for Status {
     fn column_result(value: ValueRef) -> Result<Self, FromSqlError> {
         let s = value.as_str()?;
-        Ok(Status::try_from(s).expect("Can't convert database entry to Status"))
+        Ok(Status::try_from(s).expect("Error converting database entry to Status"))
     }
 }

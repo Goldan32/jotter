@@ -85,14 +85,14 @@ where
                 .unwrap_or(&String::from("Indefinite"))
                 .clone(),
         })
-        .unwrap(),
+        .expect("Error making InputCommand from Cli::Add"),
         Some(("ls", sub_m)) => TryInto::<InputCommand>::try_into(Ls {
             status: sub_m
                 .get_one::<String>("status")
                 .unwrap_or(&String::from("All"))
                 .clone(),
         })
-        .unwrap(),
+        .expect("Error making InputCommand from Cli::Ls"),
         _ => panic!("Pls no"),
     }
 }
