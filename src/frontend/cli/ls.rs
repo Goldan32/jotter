@@ -9,6 +9,8 @@ pub struct Ls {
 impl TryInto<InputCommand> for Ls {
     type Error = CliError;
     fn try_into(self) -> Result<InputCommand, Self::Error> {
-        Ok(InputCommand::Ls(self.status.parse().unwrap()))
+        Ok(InputCommand::Ls(
+            self.status.parse().expect("Error parsing status from cli"),
+        ))
     }
 }

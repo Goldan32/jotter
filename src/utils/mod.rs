@@ -7,7 +7,7 @@ use std::{
     convert::{TryFrom, TryInto},
     str::FromStr,
 };
-use strum_macros::EnumString;
+use strum_macros::{Display, EnumString};
 
 #[derive(Debug)]
 pub struct ConvertError;
@@ -20,13 +20,11 @@ pub enum DueDate {
     Other(String),
 }
 
-#[derive(EnumString, Debug, PartialEq)]
+#[derive(EnumString, Debug, PartialEq, Clone)]
+#[strum(serialize_all = "lowercase")]
 pub enum Status {
-    #[strum(serialize = "done", ascii_case_insensitive)]
     Done,
-    #[strum(serialize = "todo", ascii_case_insensitive)]
     Todo,
-    #[strum(serialize = "archived", ascii_case_insensitive)]
     Archived,
 }
 
@@ -48,14 +46,16 @@ impl TryInto<NaiveDate> for DueDate {
         let today = Local::now().date_naive();
         match self {
             Self::Today => Ok(today),
-            Self::Tomorrow => Ok(today.checked_add_days(Days::new(1)).unwrap()),
+            Self::Tomorrow => Ok(today
+                .checked_add_days(Days::new(1))
+                .expect("Error adding one day to current date")),
             Self::EndOfWeek => {
                 let day = today.weekday().num_days_from_monday();
                 Ok(today
                     .checked_add_days(Days::new(day as u64 + 4u64))
-                    .unwrap())
+                    .expect("Error adding 4 days to current date"))
             }
-            Self::Other(s) => panic!("Can't make date from {}, yet!", s),
+            Self::Other(s) => panic!("Error making date from {}, yet!", s),
         }
     }
 }
