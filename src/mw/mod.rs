@@ -28,7 +28,7 @@ impl<T: FrontEndInput, U: DatabaseOps> Middleware<T, U> {
                     .db
                     .insert_or_modify(t)
                     .expect("Failed insert_or_modify operation");
-                println!("{:?}", inserted_task);
+                println!("{}", inserted_task);
             }
             InputCommand::Ls(s) => {
                 let v = self.db.list(s).expect("Failed list operation");
