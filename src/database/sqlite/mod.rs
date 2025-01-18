@@ -5,10 +5,10 @@ use crate::{
         db::{DatabaseError, DatabaseOps},
         task::Task,
     },
-    utils::Status,
+    utils::{DueDate, Status},
 };
 use chrono::NaiveDate;
-use rusqlite::Connection;
+use rusqlite::{named_params, Connection};
 
 pub struct Sqlite {
     conn: Connection,
@@ -35,6 +35,35 @@ impl Sqlite {
             Ok(_) => Ok(tmp),
             Err(_) => Err(DatabaseError::CreateTableError),
         }
+    }
+
+    fn get_task_by_id(&self, id: u64) -> Task {
+        let mut stmt = self
+            .conn
+            .prepare(
+                "SELECT id, title, description, status, due
+                FROM tasks
+                WHERE id = :task_id
+                ORDER_BY id
+                LIMIT 1;",
+            )
+            .expect("Error querying tasks");
+        let rows = stmt
+            .query_map(named_params! {":task_id": id}, |row| {
+                Ok(Task {
+                    id: row.get(0)?,
+                    title: row.get(1)?,
+                    description: row.get(2)?,
+                    status: row.get(3)?,
+                    due: {
+                        let d: NaiveDate = row.get(4).unwrap();
+                        d.try_into().unwrap()
+                    },
+                })
+            })
+            .unwrap();
+        let mut v: Vec<Task> = rows.map(|x| x.unwrap()).collect();
+        v.remove(0)
     }
 }
 
