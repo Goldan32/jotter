@@ -5,7 +5,7 @@ use crate::{
         db::{DatabaseError, DatabaseOps},
         task::Task,
     },
-    utils::{DueDate, Status},
+    utils::Status,
 };
 use chrono::NaiveDate;
 use rusqlite::{named_params, Connection};
@@ -44,7 +44,7 @@ impl Sqlite {
                 "SELECT id, title, description, status, due
                 FROM tasks
                 WHERE id = :task_id
-                ORDER_BY id
+                ORDER BY id
                 LIMIT 1;",
             )
             .expect("Error querying tasks");
@@ -97,5 +97,9 @@ impl DatabaseOps for Sqlite {
     #[allow(unused)]
     fn list(&self, status: Status) -> Result<Vec<Task>, DatabaseError> {
         Ok(Vec::new())
+    }
+
+    fn get_by_id(&self, id: u64) -> Result<Task, DatabaseError> {
+        Ok(self.get_task_by_id(id))
     }
 }

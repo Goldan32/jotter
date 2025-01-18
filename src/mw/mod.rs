@@ -34,6 +34,10 @@ impl<T: FrontEndInput, U: DatabaseOps> Middleware<T, U> {
                 let v = self.db.list(s).expect("Failed list operation");
                 println!("{:?}", v);
             }
+            InputCommand::Show(id) => {
+                let t = self.db.get_by_id(id).unwrap();
+                println!("{}", t);
+            }
             #[allow(unreachable_patterns)]
             _ => println!("Not implemented yet"),
         }
