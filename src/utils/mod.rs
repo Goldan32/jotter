@@ -69,9 +69,10 @@ impl TryFrom<NaiveDate> for DueDate {
             .checked_add_days(Days::new(day as u64 + 4u64))
             .expect("Error adding 4 days to current date");
         match value {
-            end_of_week => Ok(Self::EndOfWeek),
-            today => Ok(Self::Today),
-            tomorrow => Ok(Self::Tomorrow),
+            d if d == end_of_week => Ok(Self::EndOfWeek),
+            d if d == today => Ok(Self::Today),
+            d if d == tomorrow => Ok(Self::Tomorrow),
+            other => Ok(Self::Other(other.format("%Y-%m-%d").to_string())),
         }
     }
 }
