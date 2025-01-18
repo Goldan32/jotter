@@ -53,7 +53,7 @@ impl TryInto<NaiveDate> for DueDate {
                     .expect("Error adding 4 days to current date"))
             }
             Self::Other(s) => {
-                Ok(NaiveDate::parse_from_str(&s, "%Y-%m-%d").expect("Bad date format given"))
+                Ok(NaiveDate::parse_from_str(&s, "%Y-%-m-%-d").expect("Bad date format given"))
             }
         }
     }
