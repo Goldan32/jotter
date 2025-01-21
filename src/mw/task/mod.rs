@@ -24,3 +24,15 @@ impl fmt::Display for Task {
         )
     }
 }
+
+impl Task {
+    pub fn display_oneline(&self) {
+        println!(
+            "{} - {} | {:?} | {:?}",
+            self.id.unwrap_or(0),
+            self.title,
+            self.status,
+            self.due
+        );
+    }
+}

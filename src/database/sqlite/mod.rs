@@ -94,9 +94,30 @@ impl DatabaseOps for Sqlite {
         Ok(t)
     }
 
-    #[allow(unused)]
     fn list(&self, status: Status) -> Result<Vec<Task>, DatabaseError> {
-        Ok(Vec::new())
+        let mut stmt = self
+            .conn
+            .prepare(
+                "SELECT id, title, status, due
+                    FROM tasks ORDER BY id;",
+            )
+            .unwrap();
+        let rows = stmt
+            .query_map(named_params! {":status": status.try_into()}, |row| {
+                Ok(Task {
+                    id: row.get(0)?,
+                    title: row.get(1)?,
+                    description: None,
+                    status: row.get(2)?,
+                    due: {
+                        let d: NaiveDate = row.get(4).unwrap();
+                        d.try_into().unwrap()
+                    },
+                })
+            })
+            .unwrap();
+        let v: Vec<Task> = rows.map(|x| x.unwrap()).collect();
+        Ok(v)
     }
 
     fn get_by_id(&self, id: u64) -> Result<Task, DatabaseError> {
