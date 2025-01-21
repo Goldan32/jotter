@@ -99,22 +99,27 @@ impl DatabaseOps for Sqlite {
             .conn
             .prepare(
                 "SELECT id, title, status, due
-                    FROM tasks ORDER BY id;",
+                    FROM tasks 
+                    WHERE status = :status
+                    ORDER BY id;",
             )
             .unwrap();
         let rows = stmt
-            .query_map(named_params! {":status": status.try_into()}, |row| {
-                Ok(Task {
-                    id: row.get(0)?,
-                    title: row.get(1)?,
-                    description: None,
-                    status: row.get(2)?,
-                    due: {
-                        let d: NaiveDate = row.get(4).unwrap();
-                        d.try_into().unwrap()
-                    },
-                })
-            })
+            .query_map(
+                named_params! {":status": status.to_string()},
+                |row| {
+                    Ok(Task {
+                        id: row.get(0)?,
+                        title: row.get(1)?,
+                        description: None,
+                        status: row.get(2)?,
+                        due: {
+                            let d: NaiveDate = row.get(3).unwrap();
+                            d.try_into().unwrap()
+                        },
+                    })
+                },
+            )
             .unwrap();
         let v: Vec<Task> = rows.map(|x| x.unwrap()).collect();
         Ok(v)

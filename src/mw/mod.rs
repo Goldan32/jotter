@@ -4,7 +4,6 @@ pub mod ui;
 
 use crate::mw::{
     db::DatabaseOps,
-    task::Task,
     ui::{FrontEndInput, InputCommand},
 };
 
