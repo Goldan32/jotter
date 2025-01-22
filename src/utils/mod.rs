@@ -4,7 +4,7 @@ use chrono::{
     Datelike,
 };
 use std::{convert::TryInto, str::FromStr};
-use strum_macros::EnumString;
+use strum_macros::{Display, EnumString};
 
 #[derive(Debug)]
 pub struct ConvertError;
@@ -17,7 +17,7 @@ pub enum DueDate {
     Other(String),
 }
 
-#[derive(EnumString, Debug, PartialEq, Clone)]
+#[derive(EnumString, Display, Debug, PartialEq, Clone)]
 #[strum(serialize_all = "lowercase")]
 pub enum Status {
     Done,
@@ -52,7 +52,9 @@ impl TryInto<NaiveDate> for DueDate {
                     .checked_add_days(Days::new(day as u64 + 4u64))
                     .expect("Error adding 4 days to current date"))
             }
-            Self::Other(s) => panic!("Error making date from {}, yet!", s),
+            Self::Other(s) => {
+                Ok(NaiveDate::parse_from_str(&s, "%Y-%-m-%-d").expect("Bad date format given"))
+            }
         }
     }
 }

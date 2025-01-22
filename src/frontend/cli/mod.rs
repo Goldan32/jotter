@@ -1,11 +1,13 @@
 mod add;
 mod ls;
+mod show;
 mod utils;
 
 use crate::mw::ui::{FrontEndInput, InputCommand};
 use add::Add;
 use clap::{Arg, Command as ClapC};
 use ls::Ls;
+use show::Show;
 use std::ffi::OsString;
 use std::iter::IntoIterator;
 
@@ -37,6 +39,7 @@ where
         .arg_required_else_help(true)
         .subcommand(
             ClapC::new("add")
+                .short_flag('a')
                 .about("Add a new task")
                 .arg(
                     Arg::new("name")
@@ -68,6 +71,17 @@ where
                     .index(1),
             ),
         )
+        .subcommand(
+            ClapC::new("show")
+                .short_flag('s')
+                .about("Show task with selected id")
+                .arg(
+                    Arg::new("id")
+                        .help("Id of task to display")
+                        .required(true)
+                        .index(1),
+                ),
+        )
         .get_matches_from(args);
 
     match matches.subcommand() {
@@ -93,6 +107,13 @@ where
                 .clone(),
         })
         .expect("Error making InputCommand from Cli::Ls"),
+        Some(("show", sub_m)) => TryInto::<InputCommand>::try_into(Show {
+            id: sub_m
+                .get_one::<String>("id")
+                .expect("Missing task id")
+                .clone(),
+        })
+        .expect("Error making InputCommand from Cli::Show"),
         _ => panic!("Pls no"),
     }
 }

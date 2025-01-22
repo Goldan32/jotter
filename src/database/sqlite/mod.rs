@@ -5,7 +5,7 @@ use crate::{
         db::{DatabaseError, DatabaseOps},
         task::Task,
     },
-    utils::{DueDate, Status},
+    utils::Status,
 };
 use chrono::NaiveDate;
 use rusqlite::{named_params, Connection};
@@ -44,7 +44,7 @@ impl Sqlite {
                 "SELECT id, title, description, status, due
                 FROM tasks
                 WHERE id = :task_id
-                ORDER_BY id
+                ORDER BY id
                 LIMIT 1;",
             )
             .expect("Error querying tasks");
@@ -94,8 +94,38 @@ impl DatabaseOps for Sqlite {
         Ok(t)
     }
 
-    #[allow(unused)]
     fn list(&self, status: Status) -> Result<Vec<Task>, DatabaseError> {
-        Ok(Vec::new())
+        let mut stmt = self
+            .conn
+            .prepare(
+                "SELECT id, title, status, due
+                    FROM tasks 
+                    WHERE status = :status
+                    ORDER BY id;",
+            )
+            .unwrap();
+        let rows = stmt
+            .query_map(
+                named_params! {":status": status.to_string()},
+                |row| {
+                    Ok(Task {
+                        id: row.get(0)?,
+                        title: row.get(1)?,
+                        description: None,
+                        status: row.get(2)?,
+                        due: {
+                            let d: NaiveDate = row.get(3).unwrap();
+                            d.try_into().unwrap()
+                        },
+                    })
+                },
+            )
+            .unwrap();
+        let v: Vec<Task> = rows.map(|x| x.unwrap()).collect();
+        Ok(v)
+    }
+
+    fn get_by_id(&self, id: u64) -> Result<Task, DatabaseError> {
+        Ok(self.get_task_by_id(id))
     }
 }
