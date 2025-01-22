@@ -25,7 +25,7 @@ impl TryInto<InputCommand> for Add {
                 id: None,
                 status: Status::Todo,
             })),
-            Err(_) => Err(FrontEndError::ParseError),
+            Err(_) => Err(FrontEndError::ParseError("date from cli".to_string())),
         }
     }
 }

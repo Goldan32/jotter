@@ -11,7 +11,7 @@ impl TryInto<InputCommand> for Ls {
     fn try_into(self) -> Result<InputCommand, Self::Error> {
         match self.status.parse() {
             Ok(s) => Ok(InputCommand::Ls(s)),
-            Err(_) => Err(FrontEndError::ParseError),
+            Err(_) => Err(FrontEndError::ParseError("status from cli".to_string())),
         }
     }
 }

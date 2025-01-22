@@ -12,6 +12,8 @@ pub struct Middleware<T: FrontEndInput, U: DatabaseOps> {
     db: U,
 }
 
+pub trait Error: std::fmt::Display {}
+
 impl<T: FrontEndInput + FrontEndOutput, U: DatabaseOps> Middleware<T, U> {
     pub fn new() -> Self {
         Self {

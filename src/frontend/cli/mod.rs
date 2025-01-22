@@ -47,6 +47,9 @@ impl FrontEndOutput for Cli {
             }
         }
     }
+    fn display_error<T: crate::mw::Error>(&self, e: T) {
+        eprintln!("{}", e);
+    }
 }
 
 pub fn get_command<I, T>(args: I) -> Result<InputCommand, FrontEndError>
@@ -135,6 +138,7 @@ where
                 .clone(),
         })
         .unwrap()),
-        _ => Err(FrontEndError::NotImplemented),
+        Some((s, _)) => Err(FrontEndError::NotImplemented(s.to_string())),
+        _ => Err(FrontEndError::UnknownError),
     }
 }

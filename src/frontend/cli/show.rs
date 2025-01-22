@@ -11,7 +11,7 @@ impl TryInto<InputCommand> for Show {
     fn try_into(self) -> Result<InputCommand, Self::Error> {
         match self.id.parse::<u64>() {
             Ok(id) => Ok(InputCommand::Show(id)),
-            Err(_) => Err(FrontEndError::ParseError),
+            Err(_) => Err(FrontEndError::ParseError("id from cli".to_string())),
         }
     }
 }
