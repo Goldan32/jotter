@@ -18,7 +18,8 @@ impl<T: FrontEndInput + FrontEndOutput, U: DatabaseOps> Middleware<T, U> {
     pub fn new() -> Self {
         Self {
             ui: T::new(),
-            db: U::open(&(std::env::var("BJL_DATABASE").expect("BJL_DATABASE must be set"))),
+            db: U::open(&(std::env::var("BJL_DATABASE").expect("BJL_DATABASE must be set")))
+                .unwrap(),
         }
     }
 

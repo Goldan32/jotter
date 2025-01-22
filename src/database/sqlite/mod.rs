@@ -68,8 +68,8 @@ impl Sqlite {
 }
 
 impl DatabaseOps for Sqlite {
-    fn open(path: &str) -> Self {
-        Sqlite::open(path).expect("Error creating Sqlite object")
+    fn open(path: &str) -> Result<Self, DatabaseError> {
+        Sqlite::open(path)
     }
 
     fn insert_or_modify(&self, t: Task) -> Result<Task, DatabaseError> {
@@ -105,21 +105,18 @@ impl DatabaseOps for Sqlite {
             )
             .unwrap();
         let rows = stmt
-            .query_map(
-                named_params! {":status": status.to_string()},
-                |row| {
-                    Ok(Task {
-                        id: row.get(0)?,
-                        title: row.get(1)?,
-                        description: None,
-                        status: row.get(2)?,
-                        due: {
-                            let d: NaiveDate = row.get(3).unwrap();
-                            d.try_into().unwrap()
-                        },
-                    })
-                },
-            )
+            .query_map(named_params! {":status": status.to_string()}, |row| {
+                Ok(Task {
+                    id: row.get(0)?,
+                    title: row.get(1)?,
+                    description: None,
+                    status: row.get(2)?,
+                    due: {
+                        let d: NaiveDate = row.get(3).unwrap();
+                        d.try_into().unwrap()
+                    },
+                })
+            })
             .unwrap();
         let v: Vec<Task> = rows.map(|x| x.unwrap()).collect();
         Ok(v)
