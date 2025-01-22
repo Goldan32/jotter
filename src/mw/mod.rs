@@ -21,7 +21,7 @@ impl<T: FrontEndInput + FrontEndOutput, U: DatabaseOps> Middleware<T, U> {
     }
 
     pub fn main(&self) {
-        let command: InputCommand = self.ui.execute();
+        let command: InputCommand = self.ui.execute().unwrap();
         match command {
             InputCommand::Add(t) => {
                 let _inserted_task = self

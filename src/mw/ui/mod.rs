@@ -18,7 +18,13 @@ pub trait FrontEndCapabilities {
 
 pub trait FrontEndInput {
     fn new() -> Self;
-    fn execute(&self) -> InputCommand;
+    fn execute(&self) -> Result<InputCommand, FrontEndError>;
+}
+
+#[derive(Debug, PartialEq)]
+pub enum FrontEndError {
+    NotImplemented,
+    ParseError,
 }
 
 pub enum TaskDisplay {

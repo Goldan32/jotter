@@ -1,7 +1,9 @@
 use crate::{
-    frontend::cli::utils::CliError,
-    mw::{task::Task, ui::InputCommand},
-    utils::Status,
+    mw::{
+        task::Task,
+        ui::{FrontEndError, InputCommand},
+    },
+    utils::{DueDate, Status},
 };
 use std::convert::TryInto;
 
@@ -13,15 +15,18 @@ pub struct Add {
 }
 
 impl TryInto<InputCommand> for Add {
-    type Error = CliError;
+    type Error = FrontEndError;
     fn try_into(self) -> Result<InputCommand, Self::Error> {
-        Ok(InputCommand::Add(Task {
-            title: self.name,
-            description: Some(self.description),
-            due: self.date.parse().expect("Error parsing date from cli"),
-            id: None,
-            status: Status::Todo,
-        }))
+        match self.date.parse::<DueDate>() {
+            Ok(date) => Ok(InputCommand::Add(Task {
+                title: self.name,
+                description: Some(self.description),
+                due: date,
+                id: None,
+                status: Status::Todo,
+            })),
+            Err(_) => Err(FrontEndError::ParseError),
+        }
     }
 }
 

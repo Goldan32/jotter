@@ -1,11 +1,10 @@
 mod add;
 mod ls;
 mod show;
-mod utils;
 
 use crate::mw::{
     task::Task,
-    ui::{FrontEndInput, FrontEndOutput, InputCommand, TaskDisplay},
+    ui::{FrontEndError, FrontEndInput, FrontEndOutput, InputCommand, TaskDisplay},
 };
 use add::Add;
 use clap::{Arg, Command as ClapC};
@@ -26,7 +25,7 @@ impl FrontEndInput for Cli {
     fn new() -> Self {
         Cli::new()
     }
-    fn execute(&self) -> InputCommand {
+    fn execute(&self) -> Result<InputCommand, FrontEndError> {
         get_command(std::env::args_os())
     }
 }
@@ -50,7 +49,7 @@ impl FrontEndOutput for Cli {
     }
 }
 
-pub fn get_command<I, T>(args: I) -> InputCommand
+pub fn get_command<I, T>(args: I) -> Result<InputCommand, FrontEndError>
 where
     I: IntoIterator<Item = T>,
     T: Into<OsString> + Clone,
@@ -107,7 +106,7 @@ where
         .get_matches_from(args);
 
     match matches.subcommand() {
-        Some(("add", sub_m)) => TryInto::<InputCommand>::try_into(Add {
+        Some(("add", sub_m)) => Ok(TryInto::<InputCommand>::try_into(Add {
             name: sub_m
                 .get_one::<String>("name")
                 .expect("Missing task name")
@@ -121,21 +120,21 @@ where
                 .unwrap_or(&String::from("Indefinite"))
                 .clone(),
         })
-        .expect("Error making InputCommand from Cli::Add"),
-        Some(("ls", sub_m)) => TryInto::<InputCommand>::try_into(Ls {
+        .unwrap()),
+        Some(("ls", sub_m)) => Ok(TryInto::<InputCommand>::try_into(Ls {
             status: sub_m
                 .get_one::<String>("status")
                 .unwrap_or(&String::from("All"))
                 .clone(),
         })
-        .expect("Error making InputCommand from Cli::Ls"),
-        Some(("show", sub_m)) => TryInto::<InputCommand>::try_into(Show {
+        .unwrap()),
+        Some(("show", sub_m)) => Ok(TryInto::<InputCommand>::try_into(Show {
             id: sub_m
                 .get_one::<String>("id")
                 .expect("Missing task id")
                 .clone(),
         })
-        .expect("Error making InputCommand from Cli::Show"),
-        _ => panic!("Pls no"),
+        .unwrap()),
+        _ => Err(FrontEndError::NotImplemented),
     }
 }
