@@ -3,7 +3,10 @@ mod ls;
 mod show;
 mod utils;
 
-use crate::mw::ui::{FrontEndInput, InputCommand};
+use crate::mw::{
+    task::Task,
+    ui::{FrontEndInput, FrontEndOutput, InputCommand, TaskDisplay},
+};
 use add::Add;
 use clap::{Arg, Command as ClapC};
 use ls::Ls;
@@ -25,6 +28,25 @@ impl FrontEndInput for Cli {
     }
     fn execute(&self) -> InputCommand {
         get_command(std::env::args_os())
+    }
+}
+
+impl FrontEndOutput for Cli {
+    fn display_task(&self, t: Task, disp: TaskDisplay) {
+        match disp {
+            TaskDisplay::Full => {
+                println!("{}", t);
+            }
+            TaskDisplay::Oneline => {
+                println!(
+                    "{} - {} | {:?} | {:?}",
+                    t.id.unwrap_or(0),
+                    t.title,
+                    t.status,
+                    t.due
+                );
+            }
+        }
     }
 }
 

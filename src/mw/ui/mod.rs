@@ -20,3 +20,12 @@ pub trait FrontEndInput {
     fn new() -> Self;
     fn execute(&self) -> InputCommand;
 }
+
+pub enum TaskDisplay {
+    Full,
+    Oneline,
+}
+
+pub trait FrontEndOutput {
+    fn display_task(&self, t: Task, disp: TaskDisplay);
+}
