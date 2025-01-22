@@ -4,7 +4,7 @@ use chrono::{
     Datelike,
 };
 use std::{convert::TryInto, str::FromStr};
-use strum_macros::{EnumString, ToString};
+use strum_macros::{Display, EnumString};
 
 #[derive(Debug)]
 pub struct ConvertError;
@@ -17,7 +17,7 @@ pub enum DueDate {
     Other(String),
 }
 
-#[derive(EnumString, ToString, Debug, PartialEq, Clone)]
+#[derive(EnumString, Display, Debug, PartialEq, Clone)]
 #[strum(serialize_all = "lowercase")]
 pub enum Status {
     Done,
