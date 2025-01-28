@@ -63,7 +63,12 @@ impl Sqlite {
             Err(e) => return Err(DatabaseError::QueryMapError(e.to_string())),
         };
         let mut v: Vec<Task> = rows.map(|x| x.unwrap()).collect();
-        Ok(v.remove(0))
+        match v.len() {
+            0 => Err(DatabaseError::QueryError(
+                "No such id found in database".to_string(),
+            )),
+            _ => Ok(v.remove(0)),
+        }
     }
 }
 

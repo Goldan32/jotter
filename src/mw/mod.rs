@@ -1,10 +1,12 @@
 pub mod db;
 pub mod task;
 pub mod ui;
+pub mod utils;
 
 use crate::mw::{
     db::DatabaseOps,
     ui::{FrontEndInput, FrontEndOutput, InputCommand, TaskDisplay},
+    utils::MWError,
 };
 
 pub struct Middleware<T: FrontEndInput, U: DatabaseOps> {
@@ -15,12 +17,17 @@ pub struct Middleware<T: FrontEndInput, U: DatabaseOps> {
 pub trait Error: std::fmt::Display {}
 
 impl<T: FrontEndInput + FrontEndOutput, U: DatabaseOps> Middleware<T, U> {
-    pub fn new() -> Self {
-        Self {
-            ui: T::new(),
-            db: U::open(&(std::env::var("BJL_DATABASE").expect("BJL_DATABASE must be set")))
-                .unwrap(),
-        }
+    pub fn new() -> Result<Self, MWError> {
+        let ui = T::new();
+        let db_path = match std::env::var("BJL_DATABASE") {
+            Ok(var) => var,
+            Err(_) => return Err(MWError::ConfigError("BJL_DATABASE".to_string())),
+        };
+        let db = match U::open(&db_path) {
+            Ok(db) => db,
+            Err(e) => return Err(MWError::DB(e)),
+        };
+        Ok(Self { ui, db })
     }
 
     pub fn main(&self) -> i32 {

@@ -120,7 +120,7 @@ where
         Some(("ls", sub_m)) => TryInto::<InputCommand>::try_into(Ls {
             status: sub_m
                 .get_one::<String>("status")
-                .unwrap_or(&String::from("All"))
+                .unwrap_or(&String::from("todo"))
                 .clone(),
         }),
         Some(("show", sub_m)) => TryInto::<InputCommand>::try_into(Show {
