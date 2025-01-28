@@ -16,12 +16,12 @@ fn test_get_cli_add_correct() {
 
     assert_eq!(
         uut,
-        bjl::mw::ui::InputCommand::Add(bjl::mw::task::Task {
+        Ok(bjl::mw::ui::InputCommand::Add(bjl::mw::task::Task {
             title: "Example name".to_string(),
             due: bjl::utils::DueDate::Tomorrow,
             description: Some("Example description".to_string()),
             id: None,
             status: bjl::utils::Status::Todo,
-        })
+        }))
     )
 }

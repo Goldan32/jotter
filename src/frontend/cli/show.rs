@@ -1,4 +1,4 @@
-use crate::{frontend::cli::utils::CliError, mw::ui::InputCommand};
+use crate::mw::ui::{FrontEndError, InputCommand};
 use std::convert::TryInto;
 
 #[derive(Debug, PartialEq)]
@@ -7,8 +7,11 @@ pub struct Show {
 }
 
 impl TryInto<InputCommand> for Show {
-    type Error = CliError;
+    type Error = FrontEndError;
     fn try_into(self) -> Result<InputCommand, Self::Error> {
-        Ok(InputCommand::Show(self.id.parse::<u64>().unwrap()))
+        match self.id.parse::<u64>() {
+            Ok(id) => Ok(InputCommand::Show(id)),
+            Err(_) => Err(FrontEndError::ParseError("id from cli".to_string())),
+        }
     }
 }

@@ -1,11 +1,10 @@
 mod add;
 mod ls;
 mod show;
-mod utils;
 
 use crate::mw::{
     task::Task,
-    ui::{FrontEndInput, FrontEndOutput, InputCommand, TaskDisplay},
+    ui::{FrontEndError, FrontEndInput, FrontEndOutput, InputCommand, TaskDisplay},
 };
 use add::Add;
 use clap::{Arg, Command as ClapC};
@@ -26,7 +25,7 @@ impl FrontEndInput for Cli {
     fn new() -> Self {
         Cli::new()
     }
-    fn execute(&self) -> InputCommand {
+    fn execute(&self) -> Result<InputCommand, FrontEndError> {
         get_command(std::env::args_os())
     }
 }
@@ -48,9 +47,13 @@ impl FrontEndOutput for Cli {
             }
         }
     }
+    fn display_error<T: crate::mw::Error>(&self, e: T) -> i32 {
+        eprintln!("{}", e);
+        1
+    }
 }
 
-pub fn get_command<I, T>(args: I) -> InputCommand
+pub fn get_command<I, T>(args: I) -> Result<InputCommand, FrontEndError>
 where
     I: IntoIterator<Item = T>,
     T: Into<OsString> + Clone,
@@ -81,8 +84,7 @@ where
                         .help("Due date")
                         .short('t')
                         .long("time")
-                        .required(false)
-                        .default_value("indefinite"),
+                        .required(true),
                 ),
         )
         .subcommand(
@@ -108,34 +110,26 @@ where
 
     match matches.subcommand() {
         Some(("add", sub_m)) => TryInto::<InputCommand>::try_into(Add {
-            name: sub_m
-                .get_one::<String>("name")
-                .expect("Missing task name")
-                .clone(),
+            name: sub_m.get_one::<String>("name").unwrap().clone(),
             description: sub_m
                 .get_one::<String>("description")
-                .unwrap_or(&String::from("No description"))
+                .unwrap_or(&String::from(""))
                 .to_string(),
-            date: sub_m
-                .get_one::<String>("time")
-                .unwrap_or(&String::from("Indefinite"))
-                .clone(),
-        })
-        .expect("Error making InputCommand from Cli::Add"),
+            date: sub_m.get_one::<String>("time").unwrap().clone(),
+        }),
         Some(("ls", sub_m)) => TryInto::<InputCommand>::try_into(Ls {
             status: sub_m
                 .get_one::<String>("status")
-                .unwrap_or(&String::from("All"))
+                .unwrap_or(&String::from("todo"))
                 .clone(),
-        })
-        .expect("Error making InputCommand from Cli::Ls"),
+        }),
         Some(("show", sub_m)) => TryInto::<InputCommand>::try_into(Show {
             id: sub_m
                 .get_one::<String>("id")
                 .expect("Missing task id")
                 .clone(),
-        })
-        .expect("Error making InputCommand from Cli::Show"),
-        _ => panic!("Pls no"),
+        }),
+        Some((s, _)) => Err(FrontEndError::NotImplemented(s.to_string())),
+        _ => Err(FrontEndError::UnknownError),
     }
 }

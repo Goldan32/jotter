@@ -1,10 +1,12 @@
 pub mod db;
 pub mod task;
 pub mod ui;
+pub mod utils;
 
 use crate::mw::{
     db::DatabaseOps,
     ui::{FrontEndInput, FrontEndOutput, InputCommand, TaskDisplay},
+    utils::MWError,
 };
 
 pub struct Middleware<T: FrontEndInput, U: DatabaseOps> {
@@ -12,35 +14,55 @@ pub struct Middleware<T: FrontEndInput, U: DatabaseOps> {
     db: U,
 }
 
+pub trait Error: std::fmt::Display {}
+
 impl<T: FrontEndInput + FrontEndOutput, U: DatabaseOps> Middleware<T, U> {
-    pub fn new() -> Self {
-        Self {
-            ui: T::new(),
-            db: U::open(&(std::env::var("BJL_DATABASE").expect("BJL_DATABASE must be set"))),
-        }
+    pub fn new() -> Result<Self, MWError> {
+        let ui = T::new();
+        let db_path = match std::env::var("BJL_DATABASE") {
+            Ok(var) => var,
+            Err(_) => return Err(MWError::ConfigError("BJL_DATABASE".to_string())),
+        };
+        let db = match U::open(&db_path) {
+            Ok(db) => db,
+            Err(e) => return Err(MWError::DB(e)),
+        };
+        Ok(Self { ui, db })
     }
 
-    pub fn main(&self) {
-        let command: InputCommand = self.ui.execute();
+    pub fn main(&self) -> i32 {
+        let command: InputCommand = match self.ui.execute() {
+            Ok(c) => c,
+            Err(e) => return self.ui.display_error(e),
+        };
         match command {
-            InputCommand::Add(t) => {
-                let _inserted_task = self
-                    .db
-                    .insert_or_modify(t)
-                    .expect("Failed insert_or_modify operation");
-            }
+            InputCommand::Add(t) => match self.db.insert_or_modify(t) {
+                Ok(_) => 0,
+                Err(e) => self.ui.display_error(e),
+            },
             InputCommand::Ls(s) => {
-                let v = self.db.list(s).expect("Failed list operation");
-                for t in v {
+                let tasks = match self.db.list(s) {
+                    Ok(v) => v,
+                    Err(e) => return self.ui.display_error(e),
+                };
+                for t in tasks {
                     self.ui.display_task(t, TaskDisplay::Oneline);
                 }
+                0
             }
             InputCommand::Show(id) => {
-                let t = self.db.get_by_id(id).unwrap();
-                self.ui.display_task(t, TaskDisplay::Full);
+                let task = match self.db.get_by_id(id) {
+                    Ok(t) => t,
+                    Err(e) => return self.ui.display_error(e),
+                };
+                self.ui.display_task(task, TaskDisplay::Full);
+                0
             }
             #[allow(unreachable_patterns)]
-            _ => eprintln!("Not implemented yet"),
+            _ => {
+                eprintln!("Not implemented yet");
+                2
+            }
         }
     }
 }

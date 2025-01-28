@@ -1,4 +1,9 @@
-use crate::{mw::task::Task, utils::Status};
+use crate::{
+    mw::{task::Task, Error},
+    utils::Status,
+};
+
+use std::fmt::Display;
 
 #[derive(Debug, PartialEq)]
 pub enum InputCommand {
@@ -18,7 +23,26 @@ pub trait FrontEndCapabilities {
 
 pub trait FrontEndInput {
     fn new() -> Self;
-    fn execute(&self) -> InputCommand;
+    fn execute(&self) -> Result<InputCommand, FrontEndError>;
+}
+
+#[derive(Debug, PartialEq)]
+pub enum FrontEndError {
+    NotImplemented(String),
+    ParseError(String),
+    UnknownError,
+}
+
+impl Error for FrontEndError {}
+
+impl Display for FrontEndError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::ParseError(s) => write!(f, "Error parsing {}", s),
+            Self::NotImplemented(s) => write!(f, "{} is not implemented", s),
+            Self::UnknownError => write!(f, "Unknown error occured"),
+        }
+    }
 }
 
 pub enum TaskDisplay {
@@ -28,4 +52,5 @@ pub enum TaskDisplay {
 
 pub trait FrontEndOutput {
     fn display_task(&self, t: Task, disp: TaskDisplay);
+    fn display_error<T: Error>(&self, e: T) -> i32;
 }
