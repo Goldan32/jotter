@@ -23,27 +23,39 @@ impl<T: FrontEndInput + FrontEndOutput, U: DatabaseOps> Middleware<T, U> {
         }
     }
 
-    pub fn main(&self) {
-        let command: InputCommand = self.ui.execute().unwrap();
+    pub fn main(&self) -> i32 {
+        let command: InputCommand = match self.ui.execute() {
+            Ok(c) => c,
+            Err(e) => return self.ui.display_error(e),
+        };
         match command {
-            InputCommand::Add(t) => {
-                let _inserted_task = self
-                    .db
-                    .insert_or_modify(t)
-                    .expect("Failed insert_or_modify operation");
-            }
+            InputCommand::Add(t) => match self.db.insert_or_modify(t) {
+                Ok(_) => 0,
+                Err(e) => self.ui.display_error(e),
+            },
             InputCommand::Ls(s) => {
-                let v = self.db.list(s).expect("Failed list operation");
-                for t in v {
+                let tasks = match self.db.list(s) {
+                    Ok(v) => v,
+                    Err(e) => return self.ui.display_error(e),
+                };
+                for t in tasks {
                     self.ui.display_task(t, TaskDisplay::Oneline);
                 }
+                0
             }
             InputCommand::Show(id) => {
-                let t = self.db.get_by_id(id).unwrap();
-                self.ui.display_task(t, TaskDisplay::Full);
+                let task = match self.db.get_by_id(id) {
+                    Ok(t) => t,
+                    Err(e) => return self.ui.display_error(e),
+                };
+                self.ui.display_task(task, TaskDisplay::Full);
+                0
             }
             #[allow(unreachable_patterns)]
-            _ => eprintln!("Not implemented yet"),
+            _ => {
+                eprintln!("Not implemented yet");
+                2
+            }
         }
     }
 }

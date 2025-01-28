@@ -52,6 +52,5 @@ pub enum TaskDisplay {
 
 pub trait FrontEndOutput {
     fn display_task(&self, t: Task, disp: TaskDisplay);
-    #[allow(unused)]
-    fn display_error<T: Error>(&self, e: T);
+    fn display_error<T: Error>(&self, e: T) -> i32;
 }

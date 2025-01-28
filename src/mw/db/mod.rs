@@ -5,8 +5,12 @@ use crate::{
 
 #[derive(Debug, PartialEq)]
 pub enum DatabaseError {
-    OpenError(String),
+    OpenError(String, String),
     CreateTableError,
+    QueryError(String),
+    QueryMapError(String),
+    ConvertError(String, String),
+    InsertError(String),
     #[allow(unused)]
     UnknownError,
 }
@@ -16,8 +20,12 @@ impl Error for DatabaseError {}
 impl std::fmt::Display for DatabaseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::OpenError(s) => write!(f, "Error opening {}", s),
+            Self::OpenError(s, e) => write!(f, "Error opening {} ({})", s, e),
             Self::CreateTableError => write!(f, "Error creating table"),
+            Self::QueryError(e) => write!(f, "Error with query: {}", e),
+            Self::QueryMapError(e) => write!(f, "Error mapping query result: {}", e),
+            Self::ConvertError(e, s) => write!(f, "Error converting {} to {}", e, s),
+            Self::InsertError(e) => write!(f, "Error inserting into database: {}", e),
             Self::UnknownError => write!(f, "Unknown database error occured"),
         }
     }

@@ -47,8 +47,9 @@ impl FrontEndOutput for Cli {
             }
         }
     }
-    fn display_error<T: crate::mw::Error>(&self, e: T) {
+    fn display_error<T: crate::mw::Error>(&self, e: T) -> i32 {
         eprintln!("{}", e);
+        1
     }
 }
 
@@ -83,8 +84,7 @@ where
                         .help("Due date")
                         .short('t')
                         .long("time")
-                        .required(false)
-                        .default_value("indefinite"),
+                        .required(true),
                 ),
         )
         .subcommand(
@@ -109,35 +109,26 @@ where
         .get_matches_from(args);
 
     match matches.subcommand() {
-        Some(("add", sub_m)) => Ok(TryInto::<InputCommand>::try_into(Add {
-            name: sub_m
-                .get_one::<String>("name")
-                .expect("Missing task name")
-                .clone(),
+        Some(("add", sub_m)) => TryInto::<InputCommand>::try_into(Add {
+            name: sub_m.get_one::<String>("name").unwrap().clone(),
             description: sub_m
                 .get_one::<String>("description")
-                .unwrap_or(&String::from("No description"))
+                .unwrap_or(&String::from(""))
                 .to_string(),
-            date: sub_m
-                .get_one::<String>("time")
-                .unwrap_or(&String::from("Indefinite"))
-                .clone(),
-        })
-        .unwrap()),
-        Some(("ls", sub_m)) => Ok(TryInto::<InputCommand>::try_into(Ls {
+            date: sub_m.get_one::<String>("time").unwrap().clone(),
+        }),
+        Some(("ls", sub_m)) => TryInto::<InputCommand>::try_into(Ls {
             status: sub_m
                 .get_one::<String>("status")
                 .unwrap_or(&String::from("All"))
                 .clone(),
-        })
-        .unwrap()),
-        Some(("show", sub_m)) => Ok(TryInto::<InputCommand>::try_into(Show {
+        }),
+        Some(("show", sub_m)) => TryInto::<InputCommand>::try_into(Show {
             id: sub_m
                 .get_one::<String>("id")
                 .expect("Missing task id")
                 .clone(),
-        })
-        .unwrap()),
+        }),
         Some((s, _)) => Err(FrontEndError::NotImplemented(s.to_string())),
         _ => Err(FrontEndError::UnknownError),
     }
