@@ -1,6 +1,7 @@
 use dotenv::dotenv;
 use rand::distr::{Alphanumeric, SampleString};
 use std::{
+    fs,
     path::PathBuf,
     sync::{Arc, OnceLock},
 };
@@ -26,7 +27,9 @@ impl AppConfig {
         let root_dir: PathBuf = if let Ok(var) = std::env::var("BJL_ROOT") {
             var.into()
         } else if let Some(dir) = dirs::data_local_dir() {
-            dir
+            let mut root_dir = dir;
+            root_dir.push("bjl");
+            root_dir
         } else {
             // Try to not collide with other users
             let unique_string = Alphanumeric.sample_string(&mut rand::rng(), 6);
@@ -50,8 +53,10 @@ impl AppConfig {
         };
 
         let mut task_db = root_dir.clone();
-        task_db.push("bjl");
         task_db.push("task_db.db3");
+
+        fs::create_dir_all(&root_dir).unwrap();
+        fs::create_dir_all(&work_dir).unwrap();
 
         Self::global()
             .set(Arc::new(Self {
