@@ -7,8 +7,10 @@ use std::{
 
 #[derive(Debug)]
 pub struct AppConfig {
+    #[allow(unused)]
     pub root_dir: PathBuf,
     pub task_db: PathBuf,
+    #[allow(unused)]
     pub work_dir: PathBuf,
 }
 
@@ -48,6 +50,7 @@ impl AppConfig {
         };
 
         let mut task_db = root_dir.clone();
+        task_db.push("bjl");
         task_db.push("task_db.db3");
 
         Self::global()

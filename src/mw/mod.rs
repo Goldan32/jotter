@@ -5,6 +5,7 @@ pub mod ui;
 pub mod utils;
 
 use crate::mw::{
+    config::AppConfig,
     db::DatabaseOps,
     ui::{FrontEndInput, FrontEndOutput, InputCommand, TaskDisplay},
     utils::MWError,
@@ -20,11 +21,9 @@ pub trait Error: std::fmt::Display {}
 impl<T: FrontEndInput + FrontEndOutput, U: DatabaseOps> Middleware<T, U> {
     pub fn new() -> Result<Self, MWError> {
         let ui = T::new();
-        let db_path = match std::env::var("BJL_DATABASE") {
-            Ok(var) => var,
-            Err(_) => return Err(MWError::ConfigError("BJL_DATABASE".to_string())),
-        };
-        let db = match U::open(&db_path) {
+        let config = AppConfig::get();
+        let db_path = config.task_db.to_str().unwrap();
+        let db = match U::open(db_path) {
             Ok(db) => db,
             Err(e) => return Err(MWError::DB(e)),
         };

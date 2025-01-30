@@ -3,11 +3,14 @@ mod frontend;
 mod mw;
 mod utils;
 
-use crate::{database::sqlite::Sqlite, frontend::cli::Cli, mw::Middleware};
-use dotenv::dotenv;
+use crate::{
+    database::sqlite::Sqlite,
+    frontend::cli::Cli,
+    mw::{config::AppConfig, Middleware},
+};
 
 fn main() {
-    dotenv().ok();
+    AppConfig::init();
     let executor: Middleware<Cli, Sqlite> = match Middleware::new() {
         Ok(ex) => ex,
         Err(e) => {
