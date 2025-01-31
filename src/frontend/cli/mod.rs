@@ -1,17 +1,19 @@
 mod add;
 mod ls;
+mod open;
 mod show;
 
 use crate::mw::{
+    config::AppConfig,
     task::Task,
     ui::{FrontEndError, FrontEndInput, FrontEndOutput, InputCommand, TaskDisplay},
 };
 use add::Add;
 use clap::{Arg, Command as ClapC};
 use ls::Ls;
+use open::Open;
 use show::Show;
-use std::ffi::OsString;
-use std::iter::IntoIterator;
+use std::{ffi::OsString, fs::File, io::Write, iter::IntoIterator, process::Command};
 
 pub struct Cli;
 
@@ -25,6 +27,7 @@ impl FrontEndInput for Cli {
     fn new() -> Self {
         Cli::new()
     }
+
     fn execute(&self) -> Result<InputCommand, FrontEndError> {
         get_command(std::env::args_os())
     }
@@ -47,9 +50,34 @@ impl FrontEndOutput for Cli {
             }
         }
     }
+
     fn display_error<T: crate::mw::Error>(&self, e: T) -> i32 {
         eprintln!("{}", e);
         1
+    }
+
+    fn task_editor(&self, t: Task) -> i32 {
+        let config = AppConfig::get();
+        let mut editor_root = config.work_dir.clone();
+        editor_root.push(t.id.unwrap().to_string());
+        if let Err(e) = std::fs::create_dir_all(&editor_root) {
+            return self.display_error(FrontEndError::FsError(e.to_string()));
+        }
+        let mut description_file =
+            File::create(format!("{}/description", editor_root.to_str().unwrap())).unwrap();
+        if let Err(e) = description_file.write_all(&t.description.unwrap().into_bytes()) {
+            return self.display_error(FrontEndError::FsError(e.to_string()));
+        }
+        let status = Command::new("nvim")
+            .arg("description")
+            .current_dir(editor_root)
+            .status()
+            .unwrap();
+        if status.success() {
+            0
+        } else {
+            1
+        }
     }
 }
 
@@ -106,6 +134,17 @@ where
                         .index(1),
                 ),
         )
+        .subcommand(
+            ClapC::new("open")
+                .short_flag('o')
+                .about("Open task with selected id for editing")
+                .arg(
+                    Arg::new("id")
+                        .help("Id of task to open")
+                        .required(true)
+                        .index(1),
+                ),
+        )
         .get_matches_from(args);
 
     match matches.subcommand() {
@@ -124,6 +163,12 @@ where
                 .clone(),
         }),
         Some(("show", sub_m)) => TryInto::<InputCommand>::try_into(Show {
+            id: sub_m
+                .get_one::<String>("id")
+                .expect("Missing task id")
+                .clone(),
+        }),
+        Some(("open", sub_m)) => TryInto::<InputCommand>::try_into(Open {
             id: sub_m
                 .get_one::<String>("id")
                 .expect("Missing task id")
