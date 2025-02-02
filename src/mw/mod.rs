@@ -63,7 +63,7 @@ impl<T: FrontEndInput + FrontEndOutput, U: DatabaseOps> Middleware<T, U> {
                     Ok(t) => t,
                     Err(e) => return self.ui.display_error(e),
                 };
-                self.ui.display_task(task, TaskDisplay::Full);
+                self.ui.task_editor(task);
                 0
             }
             #[allow(unreachable_patterns)]

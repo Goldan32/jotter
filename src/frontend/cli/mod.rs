@@ -13,7 +13,13 @@ use clap::{Arg, Command as ClapC};
 use ls::Ls;
 use open::Open;
 use show::Show;
-use std::{ffi::OsString, fs::File, io::Write, iter::IntoIterator, process::Command};
+use std::{
+    ffi::OsString,
+    fs::File,
+    io::{Read, Write},
+    iter::IntoIterator,
+    process::Command,
+};
 
 pub struct Cli;
 
@@ -57,27 +63,54 @@ impl FrontEndOutput for Cli {
     }
 
     fn task_editor(&self, t: Task) -> i32 {
+        // Create location
         let config = AppConfig::get();
         let mut editor_root = config.work_dir.clone();
         editor_root.push(t.id.unwrap().to_string());
         if let Err(e) = std::fs::create_dir_all(&editor_root) {
             return self.display_error(FrontEndError::FsError(e.to_string()));
         }
-        let mut description_file =
-            File::create(format!("{}/description", editor_root.to_str().unwrap())).unwrap();
-        if let Err(e) = description_file.write_all(&t.description.unwrap().into_bytes()) {
-            return self.display_error(FrontEndError::FsError(e.to_string()));
+
+        let editor_root_str = editor_root.to_str().unwrap();
+        {
+            // Create file
+            let mut description_file =
+                File::create(format!("{}/description", &editor_root_str)).unwrap();
+
+            // Write description to file
+            if let Err(e) = description_file.write_all(&t.description.unwrap().into_bytes()) {
+                return self.display_error(FrontEndError::FsError(e.to_string()));
+            }
         }
+
+        // Open editor
         let status = Command::new("nvim")
             .arg("description")
-            .current_dir(editor_root)
+            .current_dir(&editor_root)
             .status()
             .unwrap();
-        if status.success() {
-            0
-        } else {
-            1
+        if !status.success() {
+            return self.display_error(FrontEndError::FsError(format!(
+                "Error code: {:?}",
+                status.code()
+            )));
         }
+
+        // Read back file contents
+        let mut readback: String = String::new();
+        {
+            let mut description_file =
+                File::open(format!("{}/description", &editor_root_str)).unwrap();
+            if let Err(e) = description_file.read_to_string(&mut readback) {
+                return self.display_error(FrontEndError::FsError(e.to_string()));
+            }
+        }
+
+        println!("{:?}", readback);
+
+        // Write edited task back to database
+        // TODO: Return the task from here, as we have no access to db here
+        0
     }
 }
 
