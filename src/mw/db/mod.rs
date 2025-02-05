@@ -11,6 +11,7 @@ pub enum DatabaseError {
     QueryMapError(String),
     ConvertError(String, String),
     InsertError(String),
+    EditError(String, String),
     #[allow(unused)]
     UnknownError,
 }
@@ -26,6 +27,7 @@ impl std::fmt::Display for DatabaseError {
             Self::QueryMapError(e) => write!(f, "Error mapping query result: {}", e),
             Self::ConvertError(e, s) => write!(f, "Error converting {} to {}", e, s),
             Self::InsertError(e) => write!(f, "Error inserting into database: {}", e),
+            Self::EditError(field, e) => write!(f, "Error editing '{}' field: {}", field, e),
             Self::UnknownError => write!(f, "Unknown database error occured"),
         }
     }

@@ -70,6 +70,35 @@ impl Sqlite {
             _ => Ok(v.remove(0)),
         }
     }
+
+    fn set_title(&self, id: u64, new_title: &str) -> Result<(), DatabaseError> {
+        match self.conn.execute(
+            "UPDATE tasks
+             SET title = ?1
+             WHERE id = ?2",
+            [id.to_string(), new_title.to_string()],
+        ) {
+            Ok(_) => Ok(()),
+            Err(e) => return Err(DatabaseError::EditError("name".to_string(), e.to_string())),
+        }
+    }
+
+    fn set_description(&self, id: u64, new_description: Option<&str>) -> Result<(), DatabaseError> {
+        match self.conn.execute(
+            "UPDATE tasks
+             SET description = ?1
+             WHERE id = ?2",
+            [id.to_string(), new_description.unwrap().to_string()],
+        ) {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                return Err(DatabaseError::EditError(
+                    "description".to_string(),
+                    e.to_string(),
+                ))
+            }
+        }
+    }
 }
 
 impl DatabaseOps for Sqlite {
@@ -80,7 +109,8 @@ impl DatabaseOps for Sqlite {
     fn insert_or_modify(&self, t: Task) -> Result<Task, DatabaseError> {
         #[allow(unused)]
         if let Some(id) = t.id {
-            // Modify
+            // TODO: Modify
+            let stored_task = self.get_task_by_id(id)?;
         } else {
             // Create
             let tmp_due: NaiveDate = match t.due.clone().try_into() {

@@ -63,7 +63,13 @@ impl<T: FrontEndInput + FrontEndOutput, U: DatabaseOps> Middleware<T, U> {
                     Ok(t) => t,
                     Err(e) => return self.ui.display_error(e),
                 };
-                self.ui.task_editor(task);
+                let edited_task = match self.ui.task_editor(task) {
+                    Ok(t) => t,
+                    Err(e) => return self.ui.display_error(e),
+                };
+                if let Err(e) = self.db.insert_or_modify(edited_task) {
+                    return self.ui.display_error(e);
+                }
                 0
             }
             #[allow(unreachable_patterns)]

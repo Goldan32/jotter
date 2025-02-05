@@ -62,13 +62,13 @@ impl FrontEndOutput for Cli {
         1
     }
 
-    fn task_editor(&self, t: Task) -> i32 {
+    fn task_editor(&self, mut t: Task) -> Result<Task, FrontEndError> {
         // Create location
         let config = AppConfig::get();
         let mut editor_root = config.work_dir.clone();
         editor_root.push(t.id.unwrap().to_string());
         if let Err(e) = std::fs::create_dir_all(&editor_root) {
-            return self.display_error(FrontEndError::FsError(e.to_string()));
+            return Err(FrontEndError::FsError(e.to_string()));
         }
 
         let editor_root_str = editor_root.to_str().unwrap();
@@ -79,7 +79,7 @@ impl FrontEndOutput for Cli {
 
             // Write description to file
             if let Err(e) = description_file.write_all(&t.description.unwrap().into_bytes()) {
-                return self.display_error(FrontEndError::FsError(e.to_string()));
+                return Err(FrontEndError::FsError(e.to_string()));
             }
         }
 
@@ -90,7 +90,7 @@ impl FrontEndOutput for Cli {
             .status()
             .unwrap();
         if !status.success() {
-            return self.display_error(FrontEndError::FsError(format!(
+            return Err(FrontEndError::FsError(format!(
                 "Error code: {:?}",
                 status.code()
             )));
@@ -102,7 +102,7 @@ impl FrontEndOutput for Cli {
             let mut description_file =
                 File::open(format!("{}/description", &editor_root_str)).unwrap();
             if let Err(e) = description_file.read_to_string(&mut readback) {
-                return self.display_error(FrontEndError::FsError(e.to_string()));
+                return Err(FrontEndError::FsError(e.to_string()));
             }
         }
 
@@ -110,7 +110,8 @@ impl FrontEndOutput for Cli {
 
         // Write edited task back to database
         // TODO: Return the task from here, as we have no access to db here
-        0
+        t.description = Some(readback);
+        Ok(t)
     }
 }
 
