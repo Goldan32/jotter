@@ -67,6 +67,7 @@ impl<T: FrontEndInput + FrontEndOutput, U: DatabaseOps> Middleware<T, U> {
                     Ok(t) => t,
                     Err(e) => return self.ui.display_error(e),
                 };
+                println!("{}", edited_task);
                 if let Err(e) = self.db.insert_or_modify(edited_task) {
                     return self.ui.display_error(e);
                 }

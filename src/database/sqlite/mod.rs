@@ -71,32 +71,23 @@ impl Sqlite {
         }
     }
 
-    fn set_title(&self, id: u64, new_title: &str) -> Result<(), DatabaseError> {
+    fn set_field<T: rusqlite::ToSql>(
+        &self,
+        id: u64,
+        field: &str,
+        new_value: T,
+    ) -> Result<(), DatabaseError> {
         match self.conn.execute(
-            "UPDATE tasks
-             SET title = ?1
-             WHERE id = ?2",
-            [id.to_string(), new_title.to_string()],
+            &format!(
+                "UPDATE tasks
+                 SET {} = ?1
+                 WHERE id = ?2",
+                field
+            ),
+            (&id, &new_value),
         ) {
             Ok(_) => Ok(()),
-            Err(e) => return Err(DatabaseError::EditError("name".to_string(), e.to_string())),
-        }
-    }
-
-    fn set_description(&self, id: u64, new_description: Option<&str>) -> Result<(), DatabaseError> {
-        match self.conn.execute(
-            "UPDATE tasks
-             SET description = ?1
-             WHERE id = ?2",
-            [id.to_string(), new_description.unwrap().to_string()],
-        ) {
-            Ok(_) => Ok(()),
-            Err(e) => {
-                return Err(DatabaseError::EditError(
-                    "description".to_string(),
-                    e.to_string(),
-                ))
-            }
+            Err(e) => return Err(DatabaseError::EditError(field.to_string(), e.to_string())),
         }
     }
 }
@@ -107,15 +98,20 @@ impl DatabaseOps for Sqlite {
     }
 
     fn insert_or_modify(&self, t: Task) -> Result<Task, DatabaseError> {
-        #[allow(unused)]
         if let Some(id) = t.id {
-            // TODO: Modify
+            // Modify
             let stored_task = self.get_task_by_id(id)?;
+            if stored_task.title != t.title {
+                self.set_field(t.id.expect("Impossible"), "title", &t.title)?;
+            }
+            if stored_task.description != t.description {
+                self.set_field(t.id.expect("Impossible"), "description", &t.description)?;
+            }
         } else {
             // Create
             let tmp_due: NaiveDate = match t.due.clone().try_into() {
                 Ok(d) => d,
-                Err(e) => {
+                Err(_) => {
                     return Err(DatabaseError::ConvertError(
                         t.due.to_string(),
                         "Date format".to_string(),

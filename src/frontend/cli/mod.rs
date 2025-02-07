@@ -106,10 +106,7 @@ impl FrontEndOutput for Cli {
             }
         }
 
-        println!("{:?}", readback);
-
-        // Write edited task back to database
-        // TODO: Return the task from here, as we have no access to db here
+        // Return edited task
         t.description = Some(readback);
         Ok(t)
     }
