@@ -77,15 +77,13 @@ impl Sqlite {
         field: &str,
         new_value: T,
     ) -> Result<(), DatabaseError> {
-        match self.conn.execute(
-            &format!(
-                "UPDATE tasks
+        let command_str = format!(
+            "UPDATE tasks
                  SET {} = ?1
                  WHERE id = ?2",
-                field
-            ),
-            (&id, &new_value),
-        ) {
+            field
+        );
+        match self.conn.execute(&command_str, (&new_value, &id)) {
             Ok(_) => Ok(()),
             Err(e) => return Err(DatabaseError::EditError(field.to_string(), e.to_string())),
         }
@@ -102,10 +100,10 @@ impl DatabaseOps for Sqlite {
             // Modify
             let stored_task = self.get_task_by_id(id)?;
             if stored_task.title != t.title {
-                self.set_field(t.id.expect("Impossible"), "title", &t.title)?;
+                self.set_field(id, "title", &t.title)?;
             }
             if stored_task.description != t.description {
-                self.set_field(t.id.expect("Impossible"), "description", &t.description)?;
+                self.set_field(id, "description", &t.description.as_ref().unwrap())?;
             }
         } else {
             // Create
