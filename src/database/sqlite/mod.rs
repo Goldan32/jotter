@@ -105,6 +105,9 @@ impl DatabaseOps for Sqlite {
             if stored_task.description != t.description {
                 self.set_field(id, "description", &t.description.as_ref().unwrap())?;
             }
+            if stored_task.status != t.status {
+                self.set_field(id, "status", &t.status)?;
+            }
         } else {
             // Create
             let tmp_due: NaiveDate = match t.due.clone().try_into() {

@@ -72,6 +72,19 @@ impl<T: FrontEndInput + FrontEndOutput, U: DatabaseOps> Middleware<T, U> {
                 }
                 0
             }
+            InputCommand::Progress(id) => {
+                let mut task = match self.db.get_by_id(id) {
+                    Ok(t) => t,
+                    Err(e) => return self.ui.display_error(e),
+                };
+                if let Err(e) = task.progress_status(None) {
+                    return self.ui.display_error(e);
+                }
+                if let Err(e) = self.db.insert_or_modify(task) {
+                    return self.ui.display_error(e);
+                }
+                0
+            }
             #[allow(unreachable_patterns)]
             _ => {
                 eprintln!("Not implemented yet");
