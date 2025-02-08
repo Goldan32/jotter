@@ -70,6 +70,24 @@ impl Sqlite {
             _ => Ok(v.remove(0)),
         }
     }
+
+    fn set_field<T: rusqlite::ToSql>(
+        &self,
+        id: u64,
+        field: &str,
+        new_value: T,
+    ) -> Result<(), DatabaseError> {
+        let command_str = format!(
+            "UPDATE tasks
+                 SET {} = ?1
+                 WHERE id = ?2",
+            field
+        );
+        match self.conn.execute(&command_str, (&new_value, &id)) {
+            Ok(_) => Ok(()),
+            Err(e) => return Err(DatabaseError::EditError(field.to_string(), e.to_string())),
+        }
+    }
 }
 
 impl DatabaseOps for Sqlite {
@@ -78,14 +96,20 @@ impl DatabaseOps for Sqlite {
     }
 
     fn insert_or_modify(&self, t: Task) -> Result<Task, DatabaseError> {
-        #[allow(unused)]
         if let Some(id) = t.id {
             // Modify
+            let stored_task = self.get_task_by_id(id)?;
+            if stored_task.title != t.title {
+                self.set_field(id, "title", &t.title)?;
+            }
+            if stored_task.description != t.description {
+                self.set_field(id, "description", &t.description.as_ref().unwrap())?;
+            }
         } else {
             // Create
             let tmp_due: NaiveDate = match t.due.clone().try_into() {
                 Ok(d) => d,
-                Err(e) => {
+                Err(_) => {
                     return Err(DatabaseError::ConvertError(
                         t.due.to_string(),
                         "Date format".to_string(),

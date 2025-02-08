@@ -58,6 +58,20 @@ impl<T: FrontEndInput + FrontEndOutput, U: DatabaseOps> Middleware<T, U> {
                 self.ui.display_task(task, TaskDisplay::Full);
                 0
             }
+            InputCommand::Open(id) => {
+                let task = match self.db.get_by_id(id) {
+                    Ok(t) => t,
+                    Err(e) => return self.ui.display_error(e),
+                };
+                let edited_task = match self.ui.task_editor(task) {
+                    Ok(t) => t,
+                    Err(e) => return self.ui.display_error(e),
+                };
+                if let Err(e) = self.db.insert_or_modify(edited_task) {
+                    return self.ui.display_error(e);
+                }
+                0
+            }
             #[allow(unreachable_patterns)]
             _ => {
                 eprintln!("Not implemented yet");
