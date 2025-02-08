@@ -91,20 +91,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b048fb63fd8b5923fc5aa7b340d8e156aec7ec02f0c78fa8a6ddc2613f6f71de"
 
 [[package]]
-name = "budget-jira"
-version = "0.2.0"
-dependencies = [
- "chrono",
- "clap",
- "dirs",
- "dotenv",
- "rand",
- "rusqlite",
- "strum",
- "strum_macros",
-]
-
-[[package]]
 name = "bumpalo"
 version = "3.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -298,6 +284,20 @@ name = "is_terminal_polyfill"
 version = "1.70.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7943c866cc5cd64cbc25b2e01621d07fa8eb2a1a23160ee81ce38704e97b8ecf"
+
+[[package]]
+name = "jotter"
+version = "1.0.0"
+dependencies = [
+ "chrono",
+ "clap",
+ "dirs",
+ "dotenv",
+ "rand",
+ "rusqlite",
+ "strum",
+ "strum_macros",
+]
 
 [[package]]
 name = "js-sys"

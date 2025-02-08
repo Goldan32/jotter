@@ -2,9 +2,9 @@
 - [x] Open editor program to edit tasks
 - v1 Cleanup:
   - [ ] Write README
-  - [ ] Better Date display
+  - [x] Better Date display
   - [ ] New name
-  - [ ] (Optional) Refactor db trait impl into original struct
+  - ~[ ] (Optional) Refactor db trait impl into original struct~
 - [ ] Implement more robust filter for `ls`
 - [ ] Formatted output, maybe use `bat` for it
 
