@@ -14,13 +14,15 @@ impl fmt::Display for Task {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "#{} - {}\nStatus: {:?}\nDue: {:?}\n\n{}",
+            "#{} - {}\nStatus: {}\nDue: {}\n\n{}",
             self.id.unwrap_or(0),
             self.title,
             self.status,
             self.due,
-            // TODO: Get rid of this clone
-            self.description.clone().unwrap_or("N/A".to_string())
+            match self.description.as_ref() {
+                Some(d) => d,
+                None => "",
+            },
         )
     }
 }

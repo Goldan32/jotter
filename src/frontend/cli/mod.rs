@@ -47,7 +47,7 @@ impl FrontEndOutput for Cli {
             }
             TaskDisplay::Oneline => {
                 println!(
-                    "{} - {} | {:?} | {:?}",
+                    "{} - {} | {} | {}",
                     t.id.unwrap_or(0),
                     t.title,
                     t.status,

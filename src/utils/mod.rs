@@ -3,13 +3,13 @@ use chrono::{
     offset::Local,
     Datelike,
 };
-use std::{convert::TryInto, str::FromStr};
+use std::{convert::TryInto, fmt, str::FromStr};
 use strum_macros::{Display, EnumString};
 
 #[derive(Debug)]
 pub struct ConvertError;
 
-#[derive(Debug, PartialEq, Clone, Display)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum DueDate {
     Today,
     Tomorrow,
@@ -23,6 +23,17 @@ pub enum Status {
     Done,
     Todo,
     Archived,
+}
+
+impl fmt::Display for DueDate {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Today => write!(f, "Today"),
+            Self::Tomorrow => write!(f, "Tomorrow"),
+            Self::EndOfWeek => write!(f, "End of the Week"),
+            Self::Other(s) => write!(f, "{}", s),
+        }
+    }
 }
 
 impl FromStr for DueDate {
