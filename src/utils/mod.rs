@@ -25,6 +25,14 @@ pub enum Status {
     Archived,
 }
 
+impl DueDate {
+    fn from_friday() -> u64 {
+        let today = Local::now().date_naive();
+        let from_monday = today.weekday().num_days_from_monday();
+        [4, 3, 2, 1, 0, 6, 5][from_monday as usize]
+    }
+}
+
 impl fmt::Display for DueDate {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -57,12 +65,9 @@ impl TryInto<NaiveDate> for DueDate {
             Self::Tomorrow => Ok(today
                 .checked_add_days(Days::new(1))
                 .expect("Error adding one day to current date")),
-            Self::EndOfWeek => {
-                let day = today.weekday().num_days_from_monday();
-                Ok(today
-                    .checked_add_days(Days::new(day as u64 + 4u64))
-                    .expect("Error adding 4 days to current date"))
-            }
+            Self::EndOfWeek => Ok(today
+                .checked_add_days(Days::new(Self::from_friday()))
+                .expect("Error adding less than 7 days to current date")),
             Self::Other(s) => {
                 Ok(NaiveDate::parse_from_str(&s, "%Y-%-m-%-d").expect("Bad date format given"))
             }
@@ -77,9 +82,8 @@ impl TryFrom<NaiveDate> for DueDate {
         let tomorrow = today
             .checked_add_days(Days::new(1))
             .expect("Error adding one day to current date");
-        let day = today.weekday().num_days_from_monday();
         let end_of_week = today
-            .checked_add_days(Days::new(day as u64 + 4u64))
+            .checked_add_days(Days::new(Self::from_friday()))
             .expect("Error adding 4 days to current date");
         match value {
             d if d == end_of_week => Ok(Self::EndOfWeek),
