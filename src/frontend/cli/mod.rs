@@ -1,6 +1,7 @@
 mod add;
 mod ls;
 mod open;
+mod progress;
 mod show;
 
 use crate::mw::{
@@ -12,6 +13,7 @@ use add::Add;
 use clap::{Arg, Command as ClapC};
 use ls::Ls;
 use open::Open;
+use progress::Progress;
 use show::Show;
 use std::{
     ffi::OsString,
@@ -176,6 +178,17 @@ where
                         .index(1),
                 ),
         )
+        .subcommand(
+            ClapC::new("progress")
+                .short_flag('p')
+                .about("Progress the task status to the next one")
+                .arg(
+                    Arg::new("id")
+                        .help("Id of task to open")
+                        .required(true)
+                        .index(1),
+                ),
+        )
         .get_matches_from(args);
 
     match matches.subcommand() {
@@ -200,6 +213,12 @@ where
                 .clone(),
         }),
         Some(("open", sub_m)) => TryInto::<InputCommand>::try_into(Open {
+            id: sub_m
+                .get_one::<String>("id")
+                .expect("Missing task id")
+                .clone(),
+        }),
+        Some(("progress", sub_m)) => TryInto::<InputCommand>::try_into(Progress {
             id: sub_m
                 .get_one::<String>("id")
                 .expect("Missing task id")

@@ -25,6 +25,22 @@ pub enum Status {
     Archived,
 }
 
+impl Status {
+    pub fn progress(&mut self) -> Self {
+        match self {
+            Self::Todo => {
+                *self = Self::Done;
+                Self::Done
+            }
+            Self::Done => {
+                *self = Self::Archived;
+                Self::Archived
+            }
+            Self::Archived => Self::Archived,
+        }
+    }
+}
+
 impl DueDate {
     fn from_friday() -> u64 {
         let today = Local::now().date_naive();
