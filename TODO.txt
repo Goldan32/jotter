@@ -1,6 +1,7 @@
 - [x] Create the database and folder if not exist
 - [x] Open editor program to edit tasks
 - v1 Cleanup:
+  - [ ] Write README
   - [ ] Better Date display
   - [ ] New name
   - [ ] (Optional) Refactor db trait impl into original struct
