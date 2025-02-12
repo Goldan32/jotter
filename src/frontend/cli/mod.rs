@@ -187,6 +187,12 @@ where
                         .help("Id of task to open")
                         .required(true)
                         .index(1),
+                )
+                .arg(
+                    Arg::new("status")
+                        .short('s')
+                        .help("New status to apply")
+                        .required(false),
                 ),
         )
         .get_matches_from(args);
@@ -223,6 +229,7 @@ where
                 .get_one::<String>("id")
                 .expect("Missing task id")
                 .clone(),
+            new_status: sub_m.get_one::<String>("status").cloned(),
         }),
         Some((s, _)) => Err(FrontEndError::NotImplemented(s.to_string())),
         _ => Err(FrontEndError::UnknownError),

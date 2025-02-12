@@ -11,7 +11,7 @@ pub enum InputCommand {
     Ls(Status),
     Show(u64),
     Open(u64),
-    Progress(u64),
+    Progress(u64, Option<Status>),
 }
 
 /// Args in these functions are input received from user (eg. via cli)
