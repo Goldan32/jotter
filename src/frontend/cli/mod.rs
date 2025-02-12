@@ -125,7 +125,7 @@ where
         .arg_required_else_help(true)
         .subcommand(
             ClapC::new("add")
-                .short_flag('a')
+                .visible_alias("a")
                 .about("Add a new task")
                 .arg(
                     Arg::new("name")
@@ -158,7 +158,7 @@ where
         )
         .subcommand(
             ClapC::new("show")
-                .short_flag('s')
+                .visible_alias("s")
                 .about("Show task with selected id")
                 .arg(
                     Arg::new("id")
@@ -169,7 +169,7 @@ where
         )
         .subcommand(
             ClapC::new("open")
-                .short_flag('o')
+                .visible_alias("o")
                 .about("Open task with selected id for editing")
                 .arg(
                     Arg::new("id")
@@ -180,7 +180,7 @@ where
         )
         .subcommand(
             ClapC::new("progress")
-                .short_flag('p')
+                .visible_alias("p")
                 .about("Progress the task status to the next one")
                 .arg(
                     Arg::new("id")
