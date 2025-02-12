@@ -37,7 +37,10 @@ impl Task {
                 self.status.progress();
                 Ok(())
             }
-            Some(_) => panic!("Not implemented"),
+            Some(s) => {
+                self.status = s;
+                Ok(())
+            }
         }
     }
 }

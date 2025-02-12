@@ -72,12 +72,12 @@ impl<T: FrontEndInput + FrontEndOutput, U: DatabaseOps> Middleware<T, U> {
                 }
                 0
             }
-            InputCommand::Progress(id) => {
+            InputCommand::Progress(id, status) => {
                 let mut task = match self.db.get_by_id(id) {
                     Ok(t) => t,
                     Err(e) => return self.ui.display_error(e),
                 };
-                if let Err(e) = task.progress_status(None) {
+                if let Err(e) = task.progress_status(status) {
                     return self.ui.display_error(e);
                 }
                 if let Err(e) = self.db.insert_or_modify(task) {

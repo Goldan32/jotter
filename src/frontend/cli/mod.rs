@@ -125,7 +125,7 @@ where
         .arg_required_else_help(true)
         .subcommand(
             ClapC::new("add")
-                .short_flag('a')
+                .visible_alias("a")
                 .about("Add a new task")
                 .arg(
                     Arg::new("name")
@@ -158,7 +158,7 @@ where
         )
         .subcommand(
             ClapC::new("show")
-                .short_flag('s')
+                .visible_alias("s")
                 .about("Show task with selected id")
                 .arg(
                     Arg::new("id")
@@ -169,7 +169,7 @@ where
         )
         .subcommand(
             ClapC::new("open")
-                .short_flag('o')
+                .visible_alias("o")
                 .about("Open task with selected id for editing")
                 .arg(
                     Arg::new("id")
@@ -180,13 +180,19 @@ where
         )
         .subcommand(
             ClapC::new("progress")
-                .short_flag('p')
+                .visible_alias("p")
                 .about("Progress the task status to the next one")
                 .arg(
                     Arg::new("id")
                         .help("Id of task to open")
                         .required(true)
                         .index(1),
+                )
+                .arg(
+                    Arg::new("status")
+                        .short('s')
+                        .help("New status to apply")
+                        .required(false),
                 ),
         )
         .get_matches_from(args);
@@ -223,6 +229,7 @@ where
                 .get_one::<String>("id")
                 .expect("Missing task id")
                 .clone(),
+            new_status: sub_m.get_one::<String>("status").cloned(),
         }),
         Some((s, _)) => Err(FrontEndError::NotImplemented(s.to_string())),
         _ => Err(FrontEndError::UnknownError),
