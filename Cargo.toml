@@ -21,3 +21,4 @@ rand = "0.9.0"
 rusqlite = {version = "0.32.1", features = ["chrono"]}
 strum = "0.26.3"
 strum_macros = "0.26.4"
+termimad = "0.31.2"
