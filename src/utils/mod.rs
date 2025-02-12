@@ -23,11 +23,16 @@ pub enum Status {
     Done,
     Todo,
     Archived,
+    Backlog,
 }
 
 impl Status {
     pub fn progress(&mut self) -> Self {
         match self {
+            Self::Backlog => {
+                *self = Self::Todo;
+                Self::Todo
+            }
             Self::Todo => {
                 *self = Self::Done;
                 Self::Done
