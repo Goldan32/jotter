@@ -7,7 +7,7 @@ pub mod utils;
 use crate::mw::{
     config::AppConfig,
     db::DatabaseOps,
-    ui::{FrontEndInput, FrontEndOutput, InputCommand, TaskDisplay},
+    ui::{FrontEndInput, FrontEndOutput, InputCommand},
     utils::MWError,
 };
 
@@ -45,9 +45,7 @@ impl<T: FrontEndInput + FrontEndOutput, U: DatabaseOps> Middleware<T, U> {
                     Ok(v) => v,
                     Err(e) => return self.ui.display_error(e),
                 };
-                for t in tasks {
-                    self.ui.display_task(t, TaskDisplay::Oneline);
-                }
+                self.ui.display_task_list(tasks);
                 0
             }
             InputCommand::Show(id) => {
@@ -55,7 +53,7 @@ impl<T: FrontEndInput + FrontEndOutput, U: DatabaseOps> Middleware<T, U> {
                     Ok(t) => t,
                     Err(e) => return self.ui.display_error(e),
                 };
-                self.ui.display_task(task, TaskDisplay::Full);
+                self.ui.display_task(task);
                 0
             }
             InputCommand::Open(id) => {
