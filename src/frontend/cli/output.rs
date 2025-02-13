@@ -3,7 +3,7 @@ use crate::{
     mw::{
         config::AppConfig,
         task::Task,
-        ui::{FrontEndError, FrontEndOutput, TaskDisplay},
+        ui::{FrontEndError, FrontEndOutput},
     },
 };
 use regex::Regex;
@@ -19,21 +19,12 @@ use {
 };
 
 impl FrontEndOutput for Cli {
-    fn display_task(&self, t: Task, disp: TaskDisplay) {
-        match disp {
-            TaskDisplay::Full => {
-                self.display_task_long_md(t);
-            }
-            TaskDisplay::Oneline => {
-                println!(
-                    "{} - {} | {} | {}",
-                    t.id.unwrap_or(0),
-                    t.title,
-                    t.status,
-                    t.due
-                );
-            }
-        }
+    fn display_task(&self, t: Task) {
+        self.display_task_long_md(t);
+    }
+
+    fn display_task_list(&self, v: Vec<Task>) {
+        self.display_task_list_md(v);
     }
 
     fn display_error<T: crate::mw::Error>(&self, e: T) -> i32 {
@@ -91,7 +82,7 @@ impl FrontEndOutput for Cli {
     }
 }
 
-static TASK_TEMPLATE: &str = r#"
+static TASK_TEMPLATE_FULL: &str = r#"
 
 # ${task-id} - ${task-title}
 
@@ -103,6 +94,16 @@ static TASK_TEMPLATE: &str = r#"
 
 ${task-description}
 
+"#;
+
+static TASK_TEMPLATE_LIST: &str = r#"
+|:-:|:-:|:-:|:-:|
+|**ID**|**Title**|**Status**|**Due**|
+${each-task
+|:-:|:-|:-:|:-:|
+| ${task-id} | ${task-title} | ${task-status} | ${task-due} |
+}
+|-|-|-|-|
 "#;
 
 impl Cli {
@@ -132,7 +133,25 @@ impl Cli {
             .set("task-due", t.due)
             .set_lines_md("task-description", mod_desc);
         let skin = make_skin();
-        let template = TextTemplate::from(TASK_TEMPLATE);
+        let template = TextTemplate::from(TASK_TEMPLATE_FULL);
+        let text = expander.expand(&template);
+        let (width, _) = terminal_size();
+        let fmt_text = FmtText::from_text(&skin, text, Some(width as usize));
+        print!("{}", fmt_text);
+    }
+
+    fn display_task_list_md(&self, v: Vec<Task>) {
+        let mut expander = OwningTemplateExpander::new();
+        for t in v {
+            expander
+                .sub("each-task")
+                .set("task-id", format!("{}", t.id.unwrap_or(0u64)))
+                .set("task-title", t.title)
+                .set("task-status", t.status)
+                .set("task-due", t.due);
+        }
+        let skin = make_skin();
+        let template = TextTemplate::from(TASK_TEMPLATE_LIST);
         let text = expander.expand(&template);
         let (width, _) = terminal_size();
         let fmt_text = FmtText::from_text(&skin, text, Some(width as usize));

@@ -51,13 +51,9 @@ impl Display for FrontEndError {
     }
 }
 
-pub enum TaskDisplay {
-    Full,
-    Oneline,
-}
-
 pub trait FrontEndOutput {
-    fn display_task(&self, t: Task, disp: TaskDisplay);
+    fn display_task(&self, t: Task);
+    fn display_task_list(&self, v: Vec<Task>);
     fn display_error<T: Error>(&self, e: T) -> i32;
     fn task_editor(&self, t: Task) -> Result<Task, FrontEndError>;
 }
