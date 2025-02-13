@@ -6,17 +6,23 @@ use crate::{
         ui::{FrontEndError, FrontEndOutput, TaskDisplay},
     },
 };
+use regex::Regex;
 use std::{
     fs::File,
     io::{Read, Write},
     process::Command,
+};
+use {
+    minimad::{OwningTemplateExpander, TextTemplate},
+    termimad::crossterm::style::Color,
+    termimad::*,
 };
 
 impl FrontEndOutput for Cli {
     fn display_task(&self, t: Task, disp: TaskDisplay) {
         match disp {
             TaskDisplay::Full => {
-                println!("{}", t);
+                self.display_task_long_md(t);
             }
             TaskDisplay::Oneline => {
                 println!(
@@ -83,4 +89,68 @@ impl FrontEndOutput for Cli {
         t.description = Some(readback);
         Ok(t)
     }
+}
+
+static TASK_TEMPLATE: &str = r#"
+
+# ${task-id} - ${task-title}
+
+|:-:|:-:|
+|**Status**|${task-status}|
+|-|-|
+|**Due**|${task-due}|
+|-|-|
+
+${task-description}
+
+"#;
+
+impl Cli {
+    fn display_task_long_md(&self, t: Task) {
+        // Regex to replace `- ` at the start of lines with `* ` (list markers)
+        let list_re = Regex::new(r"(?m)^(\s*)- ").expect("Can't make regex");
+        let chkbx_re = Regex::new(r"\[(x| )\]").expect("Can't make regex");
+        let mut mod_desc: String;
+        if let Some(d) = t.description {
+            mod_desc = d;
+            mod_desc = list_re.replace_all(&mod_desc, "$1* ").to_string();
+            mod_desc = chkbx_re
+                .replace_all(&mod_desc, |caps: &regex::Captures| match &caps[1] {
+                    "x" => "✓",
+                    " " => "☐",
+                    _ => panic!("Impossible"),
+                })
+                .to_string();
+        } else {
+            mod_desc = "".to_string();
+        }
+        let mut expander = OwningTemplateExpander::new();
+        expander
+            .set("task-id", format!("{}", t.id.unwrap_or(0u64)))
+            .set("task-title", t.title)
+            .set("task-status", t.status)
+            .set("task-due", t.due)
+            .set_lines_md("task-description", mod_desc);
+        let skin = make_skin();
+        let template = TextTemplate::from(TASK_TEMPLATE);
+        let text = expander.expand(&template);
+        let (width, _) = terminal_size();
+        let fmt_text = FmtText::from_text(&skin, text, Some(width as usize));
+        print!("{}", fmt_text);
+    }
+}
+
+fn make_skin() -> MadSkin {
+    let mut skin = MadSkin::default();
+    skin.set_headers_fg(Color::AnsiValue(178));
+    skin.headers[0].align = termimad::Alignment::Left;
+    skin.headers[1].set_fg(Color::Magenta);
+    skin.bold.set_fg(Color::Yellow);
+    skin.italic.set_fg(Color::Cyan);
+    skin.inline_code.set_fg(Color::Red);
+    skin.bullet = StyledChar::from_fg_char(Color::Magenta, '▸');
+    skin.list_items_indentation_mode = ListItemsIndentationMode::Block;
+    skin.scrollbar.thumb.set_fg(Color::AnsiValue(178));
+    skin.table_border_chars = ROUNDED_TABLE_BORDER_CHARS;
+    skin
 }

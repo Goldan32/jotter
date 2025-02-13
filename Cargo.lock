@@ -429,6 +429,7 @@ dependencies = [
  "dirs",
  "dotenv",
  "rand",
+ "regex",
  "rusqlite",
  "strum",
  "strum_macros",
