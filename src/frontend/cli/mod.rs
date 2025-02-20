@@ -5,6 +5,7 @@ mod open;
 mod output;
 mod progress;
 mod show;
+mod update;
 
 pub struct Cli;
 
