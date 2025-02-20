@@ -15,7 +15,6 @@ pub struct AppConfig {
     pub work_dir: PathBuf,
 }
 
-// TODO: Add some Arc magic to make this a "singleton"
 impl AppConfig {
     fn global() -> &'static OnceLock<Arc<AppConfig>> {
         static INSTANCE: OnceLock<Arc<AppConfig>> = OnceLock::new();

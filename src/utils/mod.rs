@@ -14,6 +14,7 @@ pub enum DueDate {
     Today,
     Tomorrow,
     EndOfWeek,
+    Unknown,
     Other(String),
 }
 
@@ -52,6 +53,10 @@ impl DueDate {
         let from_monday = today.weekday().num_days_from_monday();
         [4, 3, 2, 1, 0, 6, 5][from_monday as usize]
     }
+
+    fn distant_future() -> NaiveDate {
+        NaiveDate::from_ymd_opt(3001, 1, 1).expect("Bad future date")
+    }
 }
 
 impl fmt::Display for DueDate {
@@ -60,6 +65,7 @@ impl fmt::Display for DueDate {
             Self::Today => write!(f, "Today"),
             Self::Tomorrow => write!(f, "Tomorrow"),
             Self::EndOfWeek => write!(f, "End of the Week"),
+            Self::Unknown => write!(f, "-"),
             Self::Other(s) => write!(f, "{}", s),
         }
     }
@@ -72,6 +78,7 @@ impl FromStr for DueDate {
             "today" => Ok(Self::Today),
             "tomorrow" => Ok(Self::Tomorrow),
             "endofweek" | "eow" => Ok(Self::EndOfWeek),
+            "-" | "unknown" => Ok(Self::Unknown),
             s => Ok(Self::Other(s.to_string())),
         }
     }
@@ -89,6 +96,7 @@ impl TryInto<NaiveDate> for DueDate {
             Self::EndOfWeek => Ok(today
                 .checked_add_days(Days::new(Self::from_friday()))
                 .expect("Error adding less than 7 days to current date")),
+            Self::Unknown => Ok(Self::distant_future()),
             Self::Other(s) => {
                 Ok(NaiveDate::parse_from_str(&s, "%Y-%-m-%-d").expect("Bad date format given"))
             }
@@ -105,11 +113,12 @@ impl TryFrom<NaiveDate> for DueDate {
             .expect("Error adding one day to current date");
         let end_of_week = today
             .checked_add_days(Days::new(Self::from_friday()))
-            .expect("Error adding 4 days to current date");
+            .expect("Can't calculate friday");
         match value {
             d if d == end_of_week => Ok(Self::EndOfWeek),
             d if d == today => Ok(Self::Today),
             d if d == tomorrow => Ok(Self::Tomorrow),
+            d if d == Self::distant_future() => Ok(Self::Unknown),
             other => Ok(Self::Other(other.format("%Y-%m-%d").to_string())),
         }
     }
