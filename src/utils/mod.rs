@@ -24,6 +24,7 @@ pub enum Status {
     Done,
     Todo,
     Archived,
+    Blocked,
     Backlog,
 }
 
@@ -41,6 +42,10 @@ impl Status {
             Self::Done => {
                 *self = Self::Archived;
                 Self::Archived
+            }
+            Self::Blocked => {
+                *self = Self::Todo;
+                Self::Todo
             }
             Self::Archived => Self::Archived,
         }
