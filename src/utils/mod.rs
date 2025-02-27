@@ -20,6 +20,7 @@ pub enum DueDate {
 
 #[derive(EnumString, Display, Debug, PartialEq, Clone)]
 #[strum(serialize_all = "lowercase")]
+#[strum(ascii_case_insensitive)]
 pub enum Status {
     Done,
     Todo,
