@@ -52,7 +52,7 @@ impl AppConfig {
         };
 
         let mut task_db = root_dir.clone();
-        task_db.push("task_db.db3");
+        task_db.push("production.db3");
 
         fs::create_dir_all(&root_dir).unwrap();
         fs::create_dir_all(&work_dir).unwrap();
