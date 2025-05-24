@@ -1,4 +1,4 @@
-use super::{add::Add, ls::Ls, open::Open, progress::Progress, show::Show};
+use super::{add::Add, ls::Ls, open::Open, progress::Progress, show::Show, update::Update};
 use crate::{
     frontend::cli::Cli,
     mw::ui::{FrontEndError, FrontEndInput, InputCommand},
@@ -97,6 +97,23 @@ where
                         .required(false),
                 ),
         )
+        .subcommand(
+            ClapC::new("update")
+                .visible_alias("u")
+                .about("Update the title of a task")
+                .arg(
+                    Arg::new("id")
+                        .help("Id of task to update")
+                        .required(true)
+                        .index(1),
+                )
+                .arg(
+                    Arg::new("new_title")
+                        .help("New title for task")
+                        .required(true)
+                        .index(2),
+                ),
+        )
         .get_matches_from(args);
 
     match matches.subcommand() {
@@ -132,6 +149,16 @@ where
                 .expect("Missing task id")
                 .clone(),
             new_status: sub_m.get_one::<String>("status").cloned(),
+        }),
+        Some(("update", sub_m)) => TryInto::<InputCommand>::try_into(Update {
+            id: sub_m
+                .get_one::<String>("id")
+                .expect("Missing task id")
+                .clone(),
+            new_title: sub_m
+                .get_one::<String>("new_title")
+                .expect("Missing new title")
+                .clone(),
         }),
         Some((s, _)) => Err(FrontEndError::NotImplemented(s.to_string())),
         _ => Err(FrontEndError::UnknownError),

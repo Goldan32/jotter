@@ -12,6 +12,7 @@ pub enum InputCommand {
     Show(u64),
     Open(u64),
     Progress(u64, Option<Status>),
+    Update(u64, String),
 }
 
 /// Args in these functions are input received from user (eg. via cli)
@@ -23,6 +24,7 @@ pub trait FrontEndCapabilities {
     fn show(id: String) -> u64;
     fn open(id: String) -> u64;
     fn progress(id: String) -> u64;
+    fn update(id: String, new_title: String) -> u64;
 }
 
 pub trait FrontEndInput {
