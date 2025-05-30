@@ -32,6 +32,23 @@ You can also display a task:
 jotter show 1
 ```
 
+## Environment
+
+There are some environment variables that can be set to configure the programs behaviour. Ideally these will be a config file in the future.
+
+- `BJL_ROOT`
+  - default: `${HOME}/.local/share/bjl`
+  - Where the program will store its database and other files
+- `BJL_CACHE`
+  - default: `${HOME}/.cache/bjl`
+  - Where temporary files are created during runtime
+- `BJL_DATABASE`
+  - default: `${BJL_ROOT}/production.db3`
+  - Path to a `.db3` (sqlite3) binary database file
+  - If it doesn't exist, the program creates it
+
+## Detailed documentation
+
 Full documentation coming when time permits and most features are complete.
 
 ## How it works

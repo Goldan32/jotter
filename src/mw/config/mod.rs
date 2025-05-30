@@ -51,8 +51,16 @@ impl AppConfig {
             work_dir
         };
 
-        let mut task_db = root_dir.clone();
-        task_db.push("task_db.db3");
+        let task_db: PathBuf = if let Ok(var) = std::env::var("BJL_DATABASE") {
+            let tmp: PathBuf = var.into();
+            let parent = tmp.parent().unwrap();
+            fs::create_dir_all(&parent).unwrap();
+            tmp
+        } else {
+            let mut tmp = root_dir.clone();
+            tmp.push("production.db3");
+            tmp
+        };
 
         fs::create_dir_all(&root_dir).unwrap();
         fs::create_dir_all(&work_dir).unwrap();
