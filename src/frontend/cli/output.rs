@@ -33,6 +33,7 @@ impl FrontEndOutput for Cli {
     }
 
     fn task_editor(&self, mut t: Task) -> Result<Task, FrontEndError> {
+        const DESC_FILE_NAME: &str = "description.md";
         // Create location
         let config = AppConfig::get();
         let mut editor_root = config.work_dir.clone();
@@ -45,7 +46,7 @@ impl FrontEndOutput for Cli {
         {
             // Create file
             let mut description_file =
-                File::create(format!("{}/description", &editor_root_str)).unwrap();
+                File::create(format!("{}/{}", &editor_root_str, DESC_FILE_NAME)).unwrap();
 
             // Write description to file
             if let Err(e) = description_file.write_all(&t.description.unwrap().into_bytes()) {
@@ -55,7 +56,7 @@ impl FrontEndOutput for Cli {
 
         // Open editor
         let status = Command::new("nvim")
-            .arg("description")
+            .arg(DESC_FILE_NAME)
             .current_dir(&editor_root)
             .status()
             .unwrap();
@@ -70,7 +71,7 @@ impl FrontEndOutput for Cli {
         let mut readback: String = String::new();
         {
             let mut description_file =
-                File::open(format!("{}/description", &editor_root_str)).unwrap();
+                File::open(format!("{}/{}", &editor_root_str, DESC_FILE_NAME)).unwrap();
             if let Err(e) = description_file.read_to_string(&mut readback) {
                 return Err(FrontEndError::FsError(e.to_string()));
             }
