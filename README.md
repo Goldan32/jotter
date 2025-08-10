@@ -32,20 +32,33 @@ You can also display a task:
 jotter show 1
 ```
 
-## Environment
+## Configuration
 
-There are some environment variables that can be set to configure the programs behaviour. Ideally these will be a config file in the future.
+### Config file
 
-- `BJL_ROOT`
+These configs can currently be put in `~/.config/jotter/config.toml`:
+
+- `root_dir`
   - default: `${HOME}/.local/share/bjl`
-  - Where the program will store its database and other files
-- `BJL_CACHE`
+  - Where the program will store its persistent files
+- `work_dir`
   - default: `${HOME}/.cache/bjl`
   - Where temporary files are created during runtime
-- `BJL_DATABASE`
-  - default: `${BJL_ROOT}/production.db3`
+- `task_db`
+  - default: `${HOME}/.local/share/bjl/jotter.db3`
   - Path to a `.db3` (sqlite3) binary database file
   - If it doesn't exist, the program creates it
+- `editor`
+  - default: `nvim`
+  - Exact binary that will be called when opening a task to edit
+
+Take a look at `./config-default.toml` on how to structure your own config file. If a config is not defined in your config file, the value from the default config will be used.
+
+### Environment variables
+
+The configs above are available via environment variables too. Environment variables have a higher priority, so these will overwrite your config file.
+
+To use them, create the variable with a name like so: `root_dir` -> `BJL_ROOT_DIR` (prepend `BJL_` and capitalize)
 
 ## Detailed documentation
 
