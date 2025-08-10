@@ -1,4 +1,4 @@
-root_dir = "path/to/rootDir"
+root_dir = "/home/goldan/.local/share/bjl"
 task_db = "task_db_path"
 work_dir = "asdfa"
 editor = "nvim"

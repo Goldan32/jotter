@@ -1,6 +1,7 @@
-use config::{Config, ConfigError, Environment, File};
+use config::{Config, Environment, File};
 use serde_derive::Deserialize;
 use std::{
+    collections::HashMap,
     path::PathBuf,
     sync::{Arc, OnceLock},
 };
@@ -22,17 +23,24 @@ impl AppConfig {
         &INSTANCE
     }
 
-    pub fn init() {
-        let s = Config::builder()
-            .add_source(File::with_name("example-config.toml"))
-            .add_source(Environment::with_prefix("bjl"))
-            .build()
-            .unwrap();
+    /// Initialize the config, configs won't change after this call
+    ///
+    /// cfg: Configs in this map will overwrite any other config sources
+    pub fn init(cfg: Option<HashMap<String, String>>) {
+        let mut s = Config::builder()
+            .add_source(File::with_name("config-default.toml"))
+            .add_source(Environment::with_prefix("bjl"));
 
-        println!("{:?}", s);
-        Self::global()
-            .set(Arc::new(s.try_deserialize().unwrap()))
-            .expect("Already init");
+        if let Some(c) = cfg {
+            for (key, value) in c {
+                s = s.set_override(key, value).unwrap();
+            }
+        }
+
+        let conf = s.build().unwrap();
+
+        println!("{:#?}", conf);
+        let _ = Self::global().set(Arc::new(conf.try_deserialize().unwrap()));
     }
 
     pub fn get() -> Arc<AppConfig> {
@@ -45,9 +53,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_config_init_and_get() {
-        AppConfig::init();
+    fn test_config() {
+        AppConfig::init(Some(HashMap::from([(
+            "task_db".to_string(),
+            "init_override".to_string(),
+        )])));
         let cfg = AppConfig::get();
-        assert_eq!(cfg.task_db, PathBuf::from(r"task_db_path"));
+        assert!(cfg.root_dir.exists());
+        assert_eq!(cfg.task_db, PathBuf::from("init_override"));
     }
 }
