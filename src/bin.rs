@@ -10,7 +10,7 @@ use crate::{
 };
 
 fn main() {
-    AppConfig::init();
+    AppConfig::init(None);
     let executor: Middleware<Cli, Sqlite> = match Middleware::new() {
         Ok(ex) => ex,
         Err(e) => {
