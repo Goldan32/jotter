@@ -1,0 +1,5 @@
+root_dir = "path/to/rootDir"
+task_db = "task_db_path"
+work_dir = "asdfa"
+editor = "nvim"
+
