@@ -3,6 +3,7 @@ use serde::Deserialize;
 use serde_with_expand_env::with_expand_envs;
 use std::{
     collections::HashMap,
+    fs,
     path::PathBuf,
     sync::{Arc, OnceLock},
 };
@@ -41,12 +42,18 @@ impl AppConfig {
             }
         }
 
-        let conf = s.build().unwrap();
-        let _ = Self::global().set(Arc::new(conf.try_deserialize().unwrap()));
+        let conf = s.build().unwrap().try_deserialize().unwrap();
+        Self::create_dirs(&conf);
+        let _ = Self::global().set(Arc::new(conf));
     }
 
     pub fn get() -> Arc<AppConfig> {
         Self::global().get().expect("Config not init").clone()
+    }
+
+    fn create_dirs(conf: &AppConfig) {
+        fs::create_dir_all(&conf.root_dir).expect("Failed to create root_dir");
+        fs::create_dir_all(&conf.work_dir).expect("Failed to create work_dir");
     }
 }
 
@@ -58,10 +65,10 @@ mod tests {
 
     #[test]
     fn test_config() {
-        unsafe { env::set_var("BJL_WORK_DIR", "env_override") }
+        unsafe { env::set_var("BJL_WORK_DIR", "target/env_override") }
         AppConfig::init(Some(HashMap::from([(
             "task_db".to_string(),
-            "init_override".to_string(),
+            "target/init_override.db3".to_string(),
         )])));
         unsafe { env::remove_var("BJL_WORK_DIR") }
 
@@ -70,7 +77,7 @@ mod tests {
 
         let cfg = AppConfig::get();
         assert_eq!(cfg.root_dir, mock_root_dir);
-        assert_eq!(cfg.task_db, PathBuf::from("init_override"));
-        assert_eq!(cfg.work_dir, PathBuf::from("env_override"));
+        assert_eq!(cfg.task_db, PathBuf::from("target/init_override.db3"));
+        assert_eq!(cfg.work_dir, PathBuf::from("target/env_override"));
     }
 }
