@@ -1,5 +1,5 @@
-root_dir = "/home/goldan/.local/share/bjl"
-task_db = "task_db_path"
-work_dir = "asdfa"
+root_dir = "$HOME/.local/share/bjl"
+task_db = "$HOME/.local/share/bjl/jotter.db3"
+work_dir = "$HOME/.local/share/bjl"
 editor = "nvim"
 

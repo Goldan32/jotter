@@ -1,5 +1,6 @@
 use config::{Config, Environment, File};
-use serde_derive::Deserialize;
+use serde::Deserialize;
+use serde_with_expand_env::with_expand_envs;
 use std::{
     collections::HashMap,
     path::PathBuf,
@@ -9,11 +10,15 @@ use std::{
 #[derive(Debug, Deserialize)]
 pub struct AppConfig {
     #[allow(unused)]
+    #[serde(deserialize_with = "with_expand_envs")]
     pub editor: PathBuf,
     #[allow(unused)]
+    #[serde(deserialize_with = "with_expand_envs")]
     pub root_dir: PathBuf,
+    #[serde(deserialize_with = "with_expand_envs")]
     pub task_db: PathBuf,
     #[allow(unused)]
+    #[serde(deserialize_with = "with_expand_envs")]
     pub work_dir: PathBuf,
 }
 
@@ -30,7 +35,6 @@ impl AppConfig {
         let mut s = Config::builder()
             .add_source(File::with_name("config-default.toml"))
             .add_source(Environment::with_prefix("bjl"));
-
         if let Some(c) = cfg {
             for (key, value) in c {
                 s = s.set_override(key, value).unwrap();
@@ -38,8 +42,6 @@ impl AppConfig {
         }
 
         let conf = s.build().unwrap();
-
-        println!("{:#?}", conf);
         let _ = Self::global().set(Arc::new(conf.try_deserialize().unwrap()));
     }
 
@@ -51,15 +53,24 @@ impl AppConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use dirs;
+    use std::env;
 
     #[test]
     fn test_config() {
+        unsafe { env::set_var("BJL_WORK_DIR", "env_override") }
         AppConfig::init(Some(HashMap::from([(
             "task_db".to_string(),
             "init_override".to_string(),
         )])));
+        unsafe { env::remove_var("BJL_WORK_DIR") }
+
+        let mut mock_root_dir = dirs::home_dir().unwrap();
+        mock_root_dir.push(".local/share/bjl");
+
         let cfg = AppConfig::get();
-        assert!(cfg.root_dir.exists());
+        assert_eq!(cfg.root_dir, mock_root_dir);
         assert_eq!(cfg.task_db, PathBuf::from("init_override"));
+        assert_eq!(cfg.work_dir, PathBuf::from("env_override"));
     }
 }
