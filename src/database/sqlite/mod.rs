@@ -28,6 +28,7 @@ impl Sqlite {
             "CREATE TABLE IF NOT EXISTS epics (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             title TEXT NOT NULL,
+                            tag TEXT UNIQUE,
                             description TEXT
                           );",
             (),
@@ -176,5 +177,22 @@ impl DatabaseOps for Sqlite {
 
     fn get_by_id(&self, id: u64) -> Result<Task, DatabaseError> {
         self.get_task_by_id(id)
+    }
+
+    fn create_epic(
+        &self,
+        title: String,
+        tag: Option<String>,
+        description: Option<String>,
+    ) -> Result<(), DatabaseError> {
+        match self.conn.execute(
+            "INSERT INTO epics (title, tag, description)
+                VALUES (?1, ?2, ?3)",
+            (&title, &tag, &description),
+        ) {
+            Ok(epic) => epic,
+            Err(e) => return Err(DatabaseError::InsertError(e.to_string())),
+        };
+        Ok(())
     }
 }

@@ -40,4 +40,10 @@ pub trait DatabaseOps: Sized {
     fn insert_or_modify(&self, t: Task) -> Result<Task, DatabaseError>;
     fn list(&self, status: Status) -> Result<Vec<Task>, DatabaseError>;
     fn get_by_id(&self, id: u64) -> Result<Task, DatabaseError>;
+    fn create_epic(
+        &self,
+        title: String,
+        tag: Option<String>,
+        description: Option<String>,
+    ) -> Result<(), DatabaseError>;
 }
