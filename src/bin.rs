@@ -10,6 +10,7 @@ use crate::{
 };
 
 fn main() {
+    env_logger::init();
     AppConfig::init(None);
     let executor: Middleware<Cli, Sqlite> = match Middleware::new() {
         Ok(ex) => ex,

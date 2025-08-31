@@ -21,6 +21,20 @@ impl Sqlite {
             Err(e) => return Err(DatabaseError::OpenError(path.to_string(), e.to_string())),
         };
         let tmp = Self { conn };
+        if let Err(_) = tmp.conn.execute("PRAGMA FOREIGN_KEYS = on;", ()) {
+            return Err(DatabaseError::PragmaError);
+        }
+        if let Err(e) = tmp.conn.execute(
+            "CREATE TABLE IF NOT EXISTS epics (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            title TEXT NOT NULL,
+                            description TEXT
+                          );",
+            (),
+        ) {
+            log::warn!("{:?}", e);
+            return Err(DatabaseError::CreateTableError("epics".to_string()));
+        }
         match tmp.conn.execute(
             "CREATE TABLE IF NOT EXISTS tasks (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,7 +46,7 @@ impl Sqlite {
             (),
         ) {
             Ok(_) => Ok(tmp),
-            Err(_) => Err(DatabaseError::CreateTableError),
+            Err(_) => Err(DatabaseError::CreateTableError("tasks".to_string())),
         }
     }
 
