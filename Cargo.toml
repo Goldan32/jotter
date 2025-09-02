@@ -24,3 +24,4 @@ serde-with-expand-env = "1.1.0"
 strum = "0.26.3"
 strum_macros = "0.26.4"
 termimad = "0.31.2"
+toml = {version = "0.9.5", features = ["serde"]}

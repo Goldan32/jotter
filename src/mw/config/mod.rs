@@ -1,3 +1,5 @@
+mod default;
+
 use config::{Config, Environment, File};
 use serde::Deserialize;
 use serde_with_expand_env::with_expand_envs;
@@ -33,11 +35,13 @@ impl AppConfig {
     ///
     /// cfg: Configs in this map will overwrite any other config sources
     pub fn init(cfg: Option<HashMap<String, String>>) {
+        let default_config = default::get_default_config();
+
         let mut config_file = dirs::home_dir().unwrap();
         config_file.push(".config/jotter/config.toml");
 
         let mut s = Config::builder()
-            .add_source(File::with_name("config-default.toml"))
+            .add_source(Config::try_from(&default_config).unwrap())
             .add_source(File::with_name(config_file.to_str().unwrap()).required(false))
             .add_source(Environment::with_prefix("bjl"));
         if let Some(c) = cfg {
