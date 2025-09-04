@@ -21,6 +21,21 @@ impl Sqlite {
             Err(e) => return Err(DatabaseError::OpenError(path.to_string(), e.to_string())),
         };
         let tmp = Self { conn };
+        if let Err(_) = tmp.conn.execute("PRAGMA FOREIGN_KEYS = on;", ()) {
+            return Err(DatabaseError::PragmaError);
+        }
+        if let Err(e) = tmp.conn.execute(
+            "CREATE TABLE IF NOT EXISTS epics (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            title TEXT NOT NULL,
+                            tag TEXT UNIQUE,
+                            description TEXT
+                          );",
+            (),
+        ) {
+            log::warn!("{:?}", e);
+            return Err(DatabaseError::CreateTableError("epics".to_string()));
+        }
         match tmp.conn.execute(
             "CREATE TABLE IF NOT EXISTS tasks (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,7 +47,7 @@ impl Sqlite {
             (),
         ) {
             Ok(_) => Ok(tmp),
-            Err(_) => Err(DatabaseError::CreateTableError),
+            Err(_) => Err(DatabaseError::CreateTableError("tasks".to_string())),
         }
     }
 
@@ -162,5 +177,22 @@ impl DatabaseOps for Sqlite {
 
     fn get_by_id(&self, id: u64) -> Result<Task, DatabaseError> {
         self.get_task_by_id(id)
+    }
+
+    fn create_epic(
+        &self,
+        title: String,
+        tag: Option<String>,
+        description: Option<String>,
+    ) -> Result<(), DatabaseError> {
+        match self.conn.execute(
+            "INSERT INTO epics (title, tag, description)
+                VALUES (?1, ?2, ?3)",
+            (&title, &tag, &description),
+        ) {
+            Ok(epic) => epic,
+            Err(e) => return Err(DatabaseError::InsertError(e.to_string())),
+        };
+        Ok(())
     }
 }

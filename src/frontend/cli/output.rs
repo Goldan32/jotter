@@ -28,7 +28,7 @@ impl FrontEndOutput for Cli {
     }
 
     fn display_error<T: crate::mw::Error>(&self, e: T) -> i32 {
-        eprintln!("{}", e);
+        log::error!("{}", e);
         1
     }
 

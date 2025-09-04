@@ -51,6 +51,7 @@ impl AppConfig {
         }
 
         let conf = s.build().unwrap().try_deserialize().unwrap();
+        log::debug!("{:#?}", &conf);
         Self::create_dirs(&conf);
         let _ = Self::global().set(Arc::new(conf));
     }
