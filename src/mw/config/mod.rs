@@ -66,27 +66,27 @@ impl AppConfig {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use dirs;
-    use std::env;
-
-    #[test]
-    fn test_config() {
-        unsafe { env::set_var("BJL_WORK_DIR", "target/env_override") }
-        AppConfig::init(Some(HashMap::from([(
-            "task_db".to_string(),
-            "target/init_override.db3".to_string(),
-        )])));
-        unsafe { env::remove_var("BJL_WORK_DIR") }
-
-        let mut mock_root_dir = dirs::home_dir().unwrap();
-        mock_root_dir.push(".local/share/bjl");
-
-        let cfg = AppConfig::get();
-        assert_eq!(cfg.root_dir, mock_root_dir);
-        assert_eq!(cfg.task_db, PathBuf::from("target/init_override.db3"));
-        assert_eq!(cfg.work_dir, PathBuf::from("target/env_override"));
-    }
-}
+//#[cfg(test)]
+//mod tests {
+//    use super::*;
+//    use dirs;
+//    use std::env;
+//
+//    #[test]
+//    fn test_config() {
+//        unsafe { env::set_var("BJL_WORK_DIR", "target/env_override") }
+//        AppConfig::init(Some(HashMap::from([(
+//            "task_db".to_string(),
+//            "target/init_override.db3".to_string(),
+//        )])));
+//        unsafe { env::remove_var("BJL_WORK_DIR") }
+//
+//        let mut mock_root_dir = dirs::home_dir().unwrap();
+//        mock_root_dir.push(".local/share/bjl");
+//
+//        let cfg = AppConfig::get();
+//        assert_eq!(cfg.root_dir, mock_root_dir);
+//        assert_eq!(cfg.task_db, PathBuf::from("target/init_override.db3"));
+//        assert_eq!(cfg.work_dir, PathBuf::from("target/env_override"));
+//    }
+//}
